@@ -1,0 +1,117 @@
+*.js
+*.map
+*.css
+*.scss
+*AUTHORS.txt
+
+# Data files
+*.csv
+*.rds
+*.xlsx
+*.xls
+*.json
+
+# Session Data files
+*.RData
+
+# Data files
+*.db
+
+# Data files
+data/
+data/*.csv
+data/*.rds
+data/*.xlsx
+data/*.xls
+
+# Data files
+outputs/
+.csv
+.rds
+.xlsx
+.xls
+
+# Data files
+outputs/data/final_data/
+.csv
+.rds
+.xlsx
+.xls
+
+# Data files
+outputs/data/process_data/
+.csv
+.rds
+.xlsx
+.xls
+
+outputs/
+
+# Old files
+scratch/old/
+scratch/
+# Old files
+reports/bck/
+reports/reports-results/
+reports/Templates/
+
+
+# Old files
+reports/model_results_deaths/old/
+reports/model_results_visits/old/
+reports/model_results_visits/bck/
+
+# History files
+.Rhistory
+.Rapp.history
+
+
+# User-specific files
+.Ruserdata
+
+# Example code in package build process
+*-Ex.R
+
+# Output files from R CMD build
+/*.tar.gz
+
+# Output files from R CMD check
+/*.Rcheck/
+
+# RStudio files
+.Rproj.user/
+
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+
+# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
+.httr-oauth
+
+# knitr and R markdown default cache directories
+*_cache/
+/cache/
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+
+# R Environment Variables
+.Renviron
+
+# Old files
+_targets/
+scratch/OLD_sections/
+R/bck/
+
+# photos 
+*.png
+*.jpeg
+
+*.Rout
+
+lib/
+jobs_sh/
+
+documents/
+setting_files/
