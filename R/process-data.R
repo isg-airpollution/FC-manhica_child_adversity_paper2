@@ -122,8 +122,8 @@ multiple_folder_creation <- function(list_path) {
 #'
 #' @export
 #' Plot radar charts by environment and cluster
-
 #'
+#' 
 #' @description
 #' Creates and saves radar plots that summarize environmental features by cluster.
 #' Variables are grouped by environmental category, and radar plots are saved in structured folders.
@@ -3913,7 +3913,7 @@ elastic_net_glmmPen <- function(
   penalty        = "lasso",   # alternativas: "MCP", "SCAD"
   nlambda        = 20,        # nº de lambdas por rejilla
   search_type    = "abbrev",  # búsqueda abreviada λ (rápida)
-  bic_option     = "BICq",    # criterio para escoger modelo
+  bic_option     = "BIC",    # criterio para escoger modelo
   penalty_vector = NULL       # opcional: nombres-> 0/1 (0=no penalizar)
 ){
 
@@ -3922,17 +3922,23 @@ elastic_net_glmmPen <- function(
   dir.create(where_to_save, showWarnings = FALSE, recursive = TRUE)
   stopifnot(all(c(output_variable, group_var, offset_var) %in% names(data)))
 
+  # --- Asegurar clases "seguras"
+  data <- as.data.frame(data)
+  data[[group_var]]  <- droplevels(as.factor(data[[group_var]]))
+  data[[offset_var]] <- pmax(data[[offset_var]], 1e-6)  # evitar log(0)
+
   # --- construir fórmula de FIXED + RANDOM (sin offset en la fórmula)
   cov_no_offset <- covariables[!grepl("^offset\\(", covariables)]
   rhs <- paste(c(cov_no_offset, all_environment_variables), collapse = " + ")
   form_str <- sprintf("%s ~ %s + (1 | %s)", output_variable, rhs, group_var)
   form <- as.formula(form_str)
 
-  # --- offset (log tiempo de seguimiento) como VECTOR
+    # --- offset (log tiempo de seguimiento) como VECTOR
   off_vec <- log(data[[offset_var]])  # misma longitud que y
 
   # --- vector de no-penalización (0/1) alineado con X de FIXED (sin intercepto)
   X_fixed <- model.matrix(as.formula(paste("~", rhs)), data = data)[, -1, drop = FALSE]
+  X_fixed <- as.matrix(X_fixed)  # base matrix
   fixef_names <- colnames(X_fixed)
 
   if (is.null(penalty_vector)) {
@@ -3946,11 +3952,29 @@ elastic_net_glmmPen <- function(
     fixef_noPen <-as.numeric(!pf) # 0 = no penalizar
   }
 
+n_groups <- length(unique(data[[group_var]]))
 
+# Heurística segura para r_max (entre 1 y 5, crece con n_groups)
+r_max_heur <- max(1L, min(5L, floor(log2(n_groups + 1L))))
+
+# Control de estimación de r para FA
+r_ctl <- glmmPen::rControl(
+  r_max      = r_max_heur,           # <-- evita el error "not yet set up to recommend an r_max"
+  r_est_method = "GR",               # por defecto (Growth Ratio)
+  size       = min(25L, n_groups),   # nº de “pseudo” estimaciones por grupo
+  sample     = n_groups > 25L        # si hay pocos grupos, no hace falta muestrear
+)
 
   # --- control de la búsqueda de lambdas y de la optimización
-  sel_ctrl   <- glmmPen::selectControl(nlambda = nlambda, search = search_type, BIC_option = bic_option)
-  optim_ctrl <- glmmPen::optimControl(var_restrictions = "fixef", standardization = TRUE)
+#   sel_ctrl   <- glmmPen::selectControl(nlambda = nlambda, search = search_type, BIC_option = bic_option)
+  sel_ctrl <- glmmPen::selectControl(
+  nlambda    = nlambda,
+  lambda.min = 0.05,
+  pre_screen = FALSE,
+  BIC_option = bic_option
+)
+  optim_ctrl <- glmmPen::optimControl(var_restrictions = "fixef", standardization = TRUE,
+  nMC_report       = 500)
 
   best_fit   <- NULL
   best_bic   <- Inf
@@ -3967,12 +3991,15 @@ elastic_net_glmmPen <- function(
       alpha          = a,                      # mezcla L1/L2 (Mnet)
       optim_options  = optim_ctrl,
       tuning_options = sel_ctrl,
+    #   r_estimation   = r_ctl,
       progress       = TRUE
     )
-    b <- BIC(fit)
+    # b <- BIC(fit)
+    b <- fit$results_optim[bic_option]
     if (is.finite(b) && b < best_bic) {
       best_bic <- b; best_fit <- fit; best_alpha <- a
     }
+     gc()
   }
 
   # --- extraer coeficientes y selección
@@ -10405,4 +10432,18 @@ load_variables_by_500 <- function(){
 ,"living_without_mother_in_household"
 ,"living_without_father_in_household"
 ,"death_of_sibling")
+}
+
+
+
+
+
+TFL_diagnosis_for_paper2 <- function(h_visits_outcoume_creation, data_end_90_perce_distance_quantile_paper2){
+    
+    perm_to_check <- data_end_90_perce_distance_quantile_paper2$perm_id
+
+    data_to_analise <- h_visits_outcoume_creation %>%
+        filter(perm_id %in% perm_to_check ) %>%
+        filter(!same_episode)
+
 }

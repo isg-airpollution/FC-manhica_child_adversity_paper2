@@ -84,7 +84,7 @@ list(
 # "Y:\MOZAMBIQUE\DATA"
 # Y:\MOZAMBIQUE\ANALYSIS\FC-manhica_child_adversity_data_paper2_v2
   tar_target(res_history_file_v2,
-             "../../DATA/raw_information_062024/permid_member_start_end/permid_member_start_end_20240607.csv"), #nolint
+             "../../DATA/ORIGINAL/raw_information_062024/permid_member_start_end/permid_member_start_end_20240607.csv"), #nolint
 
 
   tar_parquet(res_history_raw_v2,
@@ -261,7 +261,7 @@ list(
   ##########
 
   tar_target( survey_visits_file_v2,
-              "../../DATA/raw_data_v2_21062023/Member.csv" ),
+              "../../DATA/ORIGINAL/raw_data_v2_21062023/Member.csv" ),
 
   tar_parquet( survey_visits_raw_v2,
               readChildrenInfo_member(survey_visits_file_v2) ),
@@ -273,7 +273,7 @@ list(
   ##########
 
   tar_target( member_details_history_file_v2,
-              "../../DATA/raw_data_v2_21062023/member_details_history.csv" ),
+              "../../DATA/ORIGINAL/raw_data_v2_21062023/member_details_history.csv" ),
 
   tar_parquet( member_details_history_raw_v2,
                read_member_detail_v2(member_details_history_file_v2) ),
@@ -329,7 +329,7 @@ list(
 
 tar_target(
   mother_file,
-  "../../DATA/raw_information_062024/population_mother_perm_id/population_mother_perm_id.csv"
+  "../../DATA/ORIGINAL/raw_information_062024/population_mother_perm_id/population_mother_perm_id.csv"
 ),
 
 tar_parquet(
@@ -381,7 +381,7 @@ tar_parquet(
 
 tar_target(
   inv_edu_ocu_file,
-  "../../DATA/raw_information_062024/individual_edu_ocupation/individual_edu_ocupation.csv"
+  "../../DATA/ORIGINAL/raw_information_062024/individual_edu_ocupation/individual_edu_ocupation.csv"
 ),
 
 tar_parquet(
@@ -539,7 +539,7 @@ tar_parquet(
 
 tar_target(
   family_inestability_file,
-  "../../DATA/raw_information_062024/Familyinstability/Familyinstability_20240611.csv"
+  "../../DATA/ORIGINAL/raw_information_062024/Familyinstability/Familyinstability_20240611.csv"
 ),
 
 tar_parquet(
@@ -713,7 +713,7 @@ tar_parquet(
 
 tar_target(
   bairros_geo_file,
-"../../DATA/gis_carles_base/boundaries/bairros.gpkg"
+"../../DATA/ORIGINAL/gis_carles_base/boundaries/bairros.gpkg"
 ),
 
 tar_target(
@@ -754,7 +754,7 @@ tar_target(
 ## Household features panel data
 
 # tar_target(houses_file,  "../../DATA/raw/dss_house_features.csv"),
-tar_target(houses_file,  "../../DATA/raw_information_062024/household_details/household_details_20240611.csv"),
+tar_target(houses_file,  "../../DATA/ORIGINAL/raw_information_062024/household_details/household_details_20240611.csv"),
 
 # data_test <- read_csv(houses_file) existe una variable que se llama accuract y que nos
 # da laprecision de la longitud y latitud...
@@ -946,7 +946,7 @@ tar_parquet(
 
 tar_file(
   econ_assets_file,
-  "../../DATA/raw_information_062024/household_economics/household_economics_20240611.csv"
+  "../../DATA/ORIGINAL/raw_information_062024/household_economics/household_economics_20240611.csv"
   ),
 
 tar_parquet(
@@ -1105,7 +1105,7 @@ tar_parquet(
 
 tar_target(
   file_location_path,
-  "../../DATA/raw_information_062024/BairrosDSS.csv"
+  "../../DATA/ORIGINAL/raw_information_062024/BairrosDSS.csv"
 ),
 
 tar_parquet(
@@ -1128,7 +1128,7 @@ tar_parquet(
 # the path to a shapefile containing country boundaries data.
 tar_target(
   countries_geo_file,
-  "../../DATA/gis_carles_base/boundaries/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp"
+  "../../DATA/ORIGINAL/gis_carles_base/boundaries/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp"
 ),
 
 # This line defines a target named `countries` and specifies a function 
@@ -1145,7 +1145,7 @@ tar_target(
 
 tar_target(
   provinces_geo_file,
-  "../../DATA/gis_carles_base/boundaries/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.shp"
+  "../../DATA/ORIGINAL/gis_carles_base/boundaries/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.shp"
 ),
 
 tar_target(
@@ -1159,7 +1159,7 @@ tar_target(
 
 tar_target(
   districts_geo_file,
-"../../DATA/gis_carles_base/boundaries/Moz_districts.geojson"
+"../../DATA/ORIGINAL/gis_carles_base/boundaries/Moz_districts.geojson"
 ),
 
 tar_target(
@@ -1197,7 +1197,7 @@ tar_target(
 tar_target(
   highway,
   read_shp_and_filter_GIS(
-    file = "../../DATA/gis_carles_base/roads/highway.shp",
+    file = "../../DATA/ORIGINAL/gis_carles_base/roads/highway.shp",
     filter_geo = manhica
   ) 
 ),
@@ -1205,7 +1205,7 @@ tar_target(
 tar_target(
   roads,
     read_shp_and_filter_GIS(
-    file = "../../DATA/gis_carles_base/roads/adna_roads.shp",
+    file = "../../DATA/ORIGINAL/gis_carles_base/roads/adna_roads.shp",
     filter_geo = manhica
   ) 
 ),
@@ -1214,7 +1214,7 @@ tar_target(
 tar_target(
   lc_vector,
  read_urban_lc_DIR(
-  file = "../../DATA/gis_carles_base/LC/E020S20_PROBAV_LC100_global_v3.0.1_2016-conso_Discrete-Classification-map_EPSG-4326.tif",
+  file = "../../DATA/ORIGINAL/gis_carles_base/LC/E020S20_PROBAV_LC100_global_v3.0.1_2016-conso_Discrete-Classification-map_EPSG-4326.tif",
   filter_geo = manhica)
 ),
 
@@ -1223,7 +1223,7 @@ tar_target(
 tar_target(
   health_facilities,
   read_health_information(
-    "../../DATA/GIS_distance/GPS_unidades_sanitarias_joe_brew.xlsx"
+    "../../DATA/ORIGINAL/GIS_distance/GPS_unidades_sanitarias_joe_brew.xlsx"
   )
 ),
 
@@ -1342,13 +1342,13 @@ tar_target(
 #-----------------------------------------------------------------------------#
  tar_parquet(
     diag,
-    get(load("../../DATA/icd10_inpd.RData"))
+    get(load("../../DATA/ORIGINAL/icd10_inpd.RData"))
   ),
 
 
 
   # tar_target(h_visits_file, "../../DATA/raw/opd.csv"),
-  tar_target(h_visits_file, "../../DATA/new_version_opd/master_opd_ver43.dta"),
+  tar_target(h_visits_file, "../../DATA/ORIGINAL/new_version_opd/master_opd_ver43.dta"),
 
   # tar_parquet(h_visits_raw, readHospitalVisits(h_visits_file)),
   tar_parquet(h_visits_raw, readHospitalVisits_dta(h_visits_file)),
@@ -1796,7 +1796,7 @@ tar_parquet(
     data_environment_raw,
     readEnvironmentData(
 
-      "../../DATA/manhica_gisvars_mcirach_230302.csv"
+      "../../DATA/ORIGINAL/manhica_gisvars_mcirach_230302.csv"
     ) %>%
     filter(
         !(perm_id == "2004-011-20") # we filter this child because it have a multiple register 
@@ -1971,34 +1971,34 @@ tar_parquet(
 #    EXECUTING REPORTE
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
-tar_target(
-  report_parper_1, 
-  rmarkdown::render(
-      here::here(
-        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
-          "reports",
-          "Templates",
-          "02-BASE_paper_1_results-sensitivity",
-          "index.Rmd"),
-      params = list( data_filtered = data_end_joining_pre_model_paper_1
-                    , bairros = bairros
-                    , health_facilities = health_facilities
-                    , roads = roads
-                    , table_ilumination_source_problematics = table_ilumination_source_problematics
-                    , data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
-                    , manhica = manhica
-                    , districts = districts
-                    , zona = zona_subRegion
-                    , postos = postos
-        ),
-      output_format = "all",
-      output_dir = here::here(
-        #   "FC-manhica_child_adversity_data",
-          "reports",
-          "reports-results",
-          "081 - mapas final"
-          )
-  )),
+# # # # tar_target(
+# # # #   report_parper_1, 
+# # # #   rmarkdown::render(
+# # # #       here::here(
+# # # #         #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+# # # #           "reports",
+# # # #           "Templates",
+# # # #           "02-BASE_paper_1_results-sensitivity",
+# # # #           "index.Rmd"),
+# # # #       params = list( data_filtered = data_end_joining_pre_model_paper_1
+# # # #                     , bairros = bairros
+# # # #                     , health_facilities = health_facilities
+# # # #                     , roads = roads
+# # # #                     , table_ilumination_source_problematics = table_ilumination_source_problematics
+# # # #                     , data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
+# # # #                     , manhica = manhica
+# # # #                     , districts = districts
+# # # #                     , zona = zona_subRegion
+# # # #                     , postos = postos
+# # # #         ),
+# # # #       output_format = "all",
+# # # #       output_dir = here::here(
+# # # #         #   "FC-manhica_child_adversity_data",
+# # # #           "reports",
+# # # #           "reports-results",
+# # # #           "081 - mapas final_NewClust"
+# # # #           )
+# # # #   )),
 
 
 #-----------------------------------------------------------------------------#
@@ -2006,85 +2006,85 @@ tar_target(
 #    EXECUTING REPORTE
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
-# tar_target(vOutcome1, "h_visits"),
+# # # # tar_target(vOutcome1, "h_visits"),
 
-tar_target(
-  report_parper_1_review, 
-  rmarkdown::render(
-      here::here(
-        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
-          "reports",
-          "Templates",
-          "06-BASE_review_Analysis",
-          "index.Rmd"),
-      params = list( 
-         data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
-         , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
+# # # tar_target(
+# # #   report_parper_1_review, 
+# # #   rmarkdown::render(
+# # #       here::here(
+# # #         #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+# # #           "reports",
+# # #           "Templates",
+# # #           "06-BASE_review_Analysis",
+# # #           "index.Rmd"),
+# # #       params = list( 
+# # #          data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
+# # #          , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
 
-        ),
-      output_format = "all",
-      output_dir = here::here(
-        #   "FC-manhica_child_adversity_data",
-          "reports",
-          "reports-results",
-          "06-review_analysis_v2"
-          )
-  )),
+# # #         ),
+# # #       output_format = "all",
+# # #       output_dir = here::here(
+# # #         #   "FC-manhica_child_adversity_data",
+# # #           "reports",
+# # #           "reports-results",
+# # #           "06-review_analysis_v2_NewClust"
+# # #           )
+# # #   )),
 
 # tar_target(vOutcome2, "h_visits_respiratory_byCode"),
 
 # vOutcome = "h_visits_respiratory_byCode",
 
-  tar_target(
-  report_parper_1_review_resp_byCode, 
-  rmarkdown::render(
-      here::here(
-        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
-          "reports",
-          "Templates",
-          "06-BASE_review_Analysis_2",
-          "index.Rmd"),
-      params = list( 
-         data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
-         , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
+# # # # #   tar_target(
+# # # # #   report_parper_1_review_resp_byCode, 
+# # # # #   rmarkdown::render(
+# # # # #       here::here(
+# # # # #         #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+# # # # #           "reports",
+# # # # #           "Templates",
+# # # # #           "06-BASE_review_Analysis_2",
+# # # # #           "index.Rmd"),
+# # # # #       params = list( 
+# # # # #          data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
+# # # # #          , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
       
 
-        ),
-      output_format = "all",
-      output_dir = here::here(
-        #   "FC-manhica_child_adversity_data",
-          "reports",
-          "reports-results",
-          "06-review_analysis_respiratory_by_code"
-          )
-  )),
+# # # # #         ),
+# # # # #       output_format = "all",
+# # # # #       output_dir = here::here(
+# # # # #         #   "FC-manhica_child_adversity_data",
+# # # # #           "reports",
+# # # # #           "reports-results",
+# # # # #           "06-review_analysis_respiratory_by_code_NewClust"
+# # # # #           )
+# # # # #   )),
 
 # tar_target(vOutcome3, "h_visits_respiratory"),
 # vOutcome = "h_visits_respiratory",
 
-  tar_target(
-  report_parper_1_review_resp, 
-  rmarkdown::render(
-      here::here(
-        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
-          "reports",
-          "Templates",
-          "06-BASE_review_Analysis_3",
-          "index.Rmd"),
-      params = list( 
-         data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
-         , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
+# # # #   tar_target(
+# # # #   report_parper_1_review_resp, 
+# # # #   rmarkdown::render(
+# # # #       here::here(
+# # # #         #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+# # # #           "reports",
+# # # #           "Templates",
+# # # #           "06-BASE_review_Analysis_3",
+# # # #           "index.Rmd"),
+# # # #       params = list( 
+# # # #          data_end_90_perce_distance_quantile = data_end_90_perce_distance_quantile
+# # # #          , data_end_90_perce_distance_quantile_rev_check = data_end_90_perce_distance_quantile_rev_check
        
 
-        ),
-      output_format = "all",
-      output_dir = here::here(
-        #   "FC-manhica_child_adversity_data",
-          "reports",
-          "reports-results",
-          "06-review_analysis_respiratory"
-          )
-  )),
+# # # #         ),
+# # # #       output_format = "all",
+# # # #       output_dir = here::here(
+# # # #         #   "FC-manhica_child_adversity_data",
+# # # #           "reports",
+# # # #           "reports-results",
+# # # #           "06-review_analysis_respiratory_NewClust"
+# # # #           )
+# # # #   )),
 
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
@@ -2449,46 +2449,48 @@ tar_parquet(
 
     )
   )
-,tar_target(
-  elastic_net_paper_2_pen,
-  elastic_net_glmmPen(
-  data = data_end_90_perce_distance_quantile_paper2,
-  all_environment_variables = all_environment_variables,
-  covariables = c(
-        "as.factor(gender)",
-        "healthdist_final_std",
-        "as.factor(healthdist_name_facility)",
-        "as.factor(year_birth)",
-        "mother_age_at_birth_of_child_std"
-    ),                 # SIN incluir offset() aquí
-  output_variable = "h_visits",             # p.ej. "h_visits"
-  group_var      = "house_number",
-  offset_var     = "fu_months",
-  where_to_save  = here::here(
-      "outputs",
-      "03_elastic_w_peen"),
-  alpha_grid     = c(0.9, 0.7, 0.5, 0.3),  # mezcla L1/L2 (ENet-like)
-  penalty        = "lasso",   # alternativas: "MCP", "SCAD"
-  nlambda        = 20,        # nº de lambdas por rejilla
-  search_type    = "abbrev",  # búsqueda abreviada λ (rápida)
-  bic_option     = "BICq",    # criterio para escoger modelo
-  penalty_vector = c(
-        "as.factor(gender)F",
-        "healthdist_final_std",
-        "as.factor(healthdist_name_facility)Malavele",
-        "as.factor(healthdist_name_facility)Manhica sede",
-        "as.factor(healthdist_name_facility)Maragra",
-        "as.factor(healthdist_name_facility)Palmeira",
-        "as.factor(healthdist_name_facility)Taninga",
-        "as.factor(healthdist_name_facility)Xinavane",
-        "as.factor(year_birth)2017",
-        "as.factor(year_birth)2018",
-        "as.factor(year_birth)2019",
-        "as.factor(year_birth)2020",
-        "mother_age_at_birth_of_child_std"
-    )     # opcional: nombres-> 0/1 (0=no penalizar)
-)
-  )
+
+# # pen
+# ,tar_target(
+#   elastic_net_paper_2_pen,
+#   elastic_net_glmmPen(
+#   data = data_end_90_perce_distance_quantile_paper2,
+#   all_environment_variables = all_environment_variables,
+#   covariables = c(
+#         "as.factor(gender)",
+#         "healthdist_final_std",
+#         "as.factor(healthdist_name_facility)",
+#         "as.factor(year_birth)",
+#         "mother_age_at_birth_of_child_std"
+#     ),                 # SIN incluir offset() aquí
+#   output_variable = "h_visits",             # p.ej. "h_visits"
+#   group_var      = "house_number",
+#   offset_var     = "fu_months",
+#   where_to_save  = here::here(
+#       "outputs",
+#       "03_elastic_w_peen"),
+#   alpha_grid     = c(0.5),  # mezcla L1/L2 (ENet-like) , 0.7, 0.5, 0.3
+#   penalty        = "lasso",   # alternativas: "MCP", "SCAD"
+#   nlambda        = 5,        # nº de lambdas por rejilla
+#   search_type    = "abbrev",  # búsqueda abreviada λ (rápida)
+#   bic_option     = "BICh",    # criterio para escoger modelo
+#   penalty_vector = c(
+#         "as.factor(gender)F",
+#         "healthdist_final_std",
+#         "as.factor(healthdist_name_facility)Malavele",
+#         "as.factor(healthdist_name_facility)Manhica sede",
+#         "as.factor(healthdist_name_facility)Maragra",
+#         "as.factor(healthdist_name_facility)Palmeira",
+#         "as.factor(healthdist_name_facility)Taninga",
+#         "as.factor(healthdist_name_facility)Xinavane",
+#         "as.factor(year_birth)2017",
+#         "as.factor(year_birth)2018",
+#         "as.factor(year_birth)2019",
+#         "as.factor(year_birth)2020",
+#         "mother_age_at_birth_of_child_std"
+#     )     # opcional: nombres-> 0/1 (0=no penalizar)
+# )
+#   )
 
 # primero reports y luego esta prueba
 # ,tar_target(
@@ -3570,6 +3572,45 @@ tar_parquet(
 #           )
 #   ))
 
+#-----------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
+#    DATA TREATMEN FOR DIAGNOSIS DISTRIBUTION ANALYSIS - DDA
+#-----------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
+# Las distribuciones que veremos son las carrespondientes al paper
+# por eso quitaremos tambien las que clasificamos como shame episode
+
+,tar_target(
+    diagnosis_raw_for_paper2,
+
+    TFL_diagnosis_for_paper2(
+        h_visits_outcoume_creation = h_visits_outcoume_creation,
+        data_end_90_perce_distance_quantile_paper2 = data_end_90_perce_distance_quantile_paper2
+    )
+)
+
+,tar_target(
+    diagnosis_long_for_paper2,
+    make_dx_long(
+    df       = diagnosis_raw_for_paper2,
+    diag_cols = paste0("diag", 1:4),
+    lab_cols  = paste0("labdiag", 1:4),
+    id_cols   = c("perm_id"),
+    keep_cols = c("place_opd"
+                 ,"date_event"
+                 ,"respiratory"
+                 ,"malaria"
+                 ,"fever"
+                 ,"bronchitis"
+                 ,"uri"
+                 ,"control"
+                 ,"respiratory_all_respiratory")  # opcional
+    )
+)
+
+####
+# finsish
+####
 
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
@@ -3707,6 +3748,36 @@ tar_parquet(
           "reports-results",
         #   "overview_v3 - B"
           "test - B"
+          )
+  ))
+
+
+#-----------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
+#    EXECUTING REPORTE - diagnosis paper 2
+#-----------------------------------------------------------------------------#
+#-----------------------------------------------------------------------------#
+
+,tar_target(
+  report_diad_paper2, 
+  rmarkdown::render(
+      here::here(
+        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+          "reports",
+          "Templates",
+          "11-BASE_tablas_para_REVIEW_PAPER_diag",
+          "index.Rmd"),
+      params = list(  
+        rex = "4"
+        , diagnosis_long_for_paper2 = diagnosis_long_for_paper2
+        ),
+      output_format = "all",
+      output_dir = here::here(
+        #   "FC-manhica_child_adversity_data",
+          "reports",
+          "reports-results",
+        #   "overview_v3 - B"
+          "24_diagnostics_summary_by_paper2_cohort"
           )
   ))
 

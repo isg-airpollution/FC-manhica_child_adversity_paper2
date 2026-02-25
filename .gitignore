@@ -51,6 +51,7 @@ outputs/
 scratch/old/
 scratch/
 # Old files
+reports/
 reports/bck/
 reports/reports-results/
 reports/Templates/

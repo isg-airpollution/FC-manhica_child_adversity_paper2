@@ -1308,3 +1308,198 @@ generate_buffers <- function(data_to_model_and_analise ,
 
 
                             }
+
+
+
+
+
+
+
+################################################################################################################
+# funciones para el diagnostico
+
+make_dx_long <- function(df,
+                         diag_cols   = paste0("diag", 1:4),
+                         lab_cols    = paste0("labdiag", 1:4),
+                         id_cols     = c("perm_id"),
+                         keep_cols   = NULL) {
+
+  df <- df %>% ungroup()
+
+  # Chequeo mínimo
+  stopifnot(all(diag_cols %in% names(df)))
+  stopifnot(all(lab_cols  %in% names(df)))
+  stopifnot(all(id_cols   %in% names(df)))
+
+  # Creamos un índice de fila para poder “emparejar” diag1 con labdiag1, etc.
+  df2 <- df %>%
+    mutate(.row_id = row_number())
+
+  # Long por diag
+  dx <- df2 %>%
+    select(all_of(c(id_cols, keep_cols, ".row_id", diag_cols))) %>%
+    pivot_longer(
+      cols = all_of(diag_cols),
+      names_to = "diag_slot",
+      values_to = "diag"
+    )
+
+  # Long por labdiag
+  lb <- df2 %>%
+    select(all_of(c(id_cols, keep_cols, ".row_id", lab_cols))) %>%
+    pivot_longer(
+      cols = all_of(lab_cols),
+      names_to = "lab_slot",
+      values_to = "labdiag"
+    ) %>%
+    mutate(diag_slot = str_replace(lab_slot, "labdiag", "diag")) %>%
+    select(-lab_slot)
+
+  # Join por fila + slot para alinear diag1<->labdiag1, etc.
+  out <- dx %>%
+    left_join(lb, by = c(id_cols, keep_cols, ".row_id", "diag_slot")) %>%
+    mutate(
+      diag = str_trim(diag),
+      labdiag = str_trim(labdiag)
+    ) %>%
+    filter(!is.na(diag), diag != "") %>%
+    select(-.row_id)
+
+  diag_agrupation <- out %>%
+    select(
+        icd10_code = diag
+    ) %>% 
+    distinct() %>%
+    arrange(icd10_code)  %>%
+  mutate(
+    icd_chapter = case_when(
+      icd10_code >= "A00" & icd10_code <= "B99" ~ "Infectious",
+      icd10_code >= "C00" & icd10_code <= "D48" ~ "Neoplasms",
+      icd10_code >= "D50" & icd10_code <= "D89" ~ "Blood/immune",
+      icd10_code >= "E00" & icd10_code <= "E90" ~ "Endocrine/metabolic",
+      icd10_code >= "F00" & icd10_code <= "F99" ~ "Mental",
+      icd10_code >= "G00" & icd10_code <= "G99" ~ "Nervous system",
+      icd10_code >= "H00" & icd10_code <= "H59" ~ "Eye",
+      icd10_code >= "H60" & icd10_code <= "H95" ~ "Ear",
+      icd10_code >= "I00" & icd10_code <= "I99" ~ "Circulatory",
+      icd10_code >= "J00" & icd10_code <= "J99" ~ "Respiratory",
+      icd10_code >= "K00" & icd10_code <= "K93" ~ "Digestive",
+      icd10_code >= "L00" & icd10_code <= "L99" ~ "Skin",
+      icd10_code >= "M00" & icd10_code <= "M99" ~ "Musculoskeletal",
+      icd10_code >= "N00" & icd10_code <= "N99" ~ "Genitourinary",
+      icd10_code >= "O00" & icd10_code <= "O99" ~ "Pregnancy",
+      icd10_code >= "P00" & icd10_code <= "P96" ~ "Perinatal",
+      icd10_code >= "Q00" & icd10_code <= "Q99" ~ "Congenital",
+      icd10_code >= "R00" & icd10_code <= "R99" ~ "Symptoms",
+      icd10_code >= "S00" & icd10_code <= "T98" ~ "Injury",
+      icd10_code >= "V01" & icd10_code <= "Y98" ~ "External causes",
+      icd10_code >= "Z00" & icd10_code <= "Z99" ~ "Health services",
+      TRUE ~ "Other"
+    ),
+    respiratory_icd_chapter = case_when(
+        icd10_code >= "J00" & icd10_code <= "J06" ~ "Infectious",
+        icd10_code >= "J30" & icd10_code <= "J39" ~ "Infectious",
+        icd10_code >= "J10" & icd10_code <= "J18" ~ "Infectious",
+        icd10_code >= "J20" & icd10_code <= "J22" ~ "Infectious",
+        icd10_code == "A15"                       ~ "Infectious",
+        icd10_code >= "J40" & icd10_code <= "J47" ~ "Chronic",
+        icd10_code >= "J60" & icd10_code <= "J70" ~ "Environmental/Interstitial",
+        icd10_code >= " J80" & icd10_code <= "J84" ~ "Environmental/Interstitial",
+        # icd10_code >= "" & icd10_code <= "" ~ "",
+        TRUE ~ "Other")
+  ) %>%
+  dplyr::rename(diag = icd10_code)
+
+
+  out %>%
+    left_join(diag_agrupation, by = "diag")
+
+
+}
+
+
+
+count_dx <- function(dx_long,
+                     flag_col = NULL,
+                     top_n = NULL) {
+
+  if (!is.null(flag_col)) {
+    stopifnot(flag_col %in% names(dx_long))
+
+    tab <- dx_long %>%
+      mutate(flag = case_when(
+        isTRUE(.data[[flag_col]])  ~ "TRUE",
+        isFALSE(.data[[flag_col]]) ~ "FALSE",
+        TRUE                       ~ "NA"
+      )) %>%
+      count(flag, diag, sort = TRUE) %>%
+      group_by(flag) %>%
+      mutate(pct = n / sum(n) * 100) %>%
+      ungroup()
+
+  } else {
+    tab <- dx_long %>%
+      count(diag, sort = TRUE) %>%
+      mutate(pct = n / sum(n) * 100)
+  }
+
+  if (!is.null(top_n)) tab <- tab %>% slice_head(n = top_n)
+  tab
+}
+
+
+word_freq_from_labdiag <- function(dx_long,
+                                   text_col = "labdiag",
+                                   flag_col = NULL,
+                                   language = "en",
+                                   min_freq = 3) {
+
+  stopifnot(text_col %in% names(dx_long))
+
+  data_txt <- dx_long %>%
+    filter(!is.na(.data[[text_col]]), .data[[text_col]] != "")
+
+  if (!is.null(flag_col)) {
+    stopifnot(flag_col %in% names(dx_long))
+    data_txt <- data_txt %>%
+      mutate(flag = case_when(
+        isTRUE(.data[[flag_col]])  ~ "TRUE",
+        isFALSE(.data[[flag_col]]) ~ "FALSE",
+        TRUE                       ~ "NA"
+      ))
+  }
+
+  # Stopwords
+  sw <- tibble(word = stopwords::stopwords(language))
+
+  # Tokenización + limpieza ligera
+  freq <- data_txt %>%
+    # select(any_of("flag"), text = all_of(text_col)) %>%
+    select(text = all_of(text_col)) %>%
+    mutate(text = str_to_lower(text)) %>%
+    # quita paréntesis y signos típicos
+    mutate(text = str_replace_all(text, "[\\(\\)\\[\\],;:]", " ")) %>%
+    tidytext::unnest_tokens(word, text) %>%
+    filter(!str_detect(word, "^[0-9]+$")) %>%     # fuera números puros
+    filter(str_length(word) >= 3) %>%             # evita tokens muy cortos
+    anti_join(sw, by = "word") %>%
+    count(word, sort = TRUE) %>%
+    filter(n >= min_freq)
+
+  freq
+}
+
+plot_wordcloud <- function(freq_tbl,
+                           max_words = 150,
+                           seed = 123) {
+
+  set.seed(seed)
+
+  # Si viene estratificado por flag, aquí se espera que filtres antes (ver ejemplo)
+  wordcloud::wordcloud(
+    words = freq_tbl$word,
+    freq  = freq_tbl$n,
+    max.words = max_words,
+    random.order = FALSE
+  )
+}
