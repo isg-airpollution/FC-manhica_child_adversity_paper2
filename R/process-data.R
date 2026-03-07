@@ -2118,7 +2118,7 @@ volcano_from_scratch <- function(
     ){
 
 
-    variable_name_to_plot <- load_variables_names_to_match()
+  variable_name_to_plot <- load_variables_names_to_match()
 
   coef_table <- list_coef$coef_table
 
@@ -2132,8 +2132,6 @@ volcano_from_scratch <- function(
     variable_name_to_plot, 
     by = join_by("term" == "var_volcano")
   )
-
-
 
   coef_exposures$p_normal_value <- coef_exposures$`Pr(>|z|)`
   coef_exposures$p_normal_value_minlog10 <- -log10(coef_exposures$`Pr(>|z|)`)
