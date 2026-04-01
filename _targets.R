@@ -240,13 +240,22 @@ list(
 ##########
 ##########
 
+#   tar_parquet(
+#     data_fu_base_rev_check,
+#     clean_fu_data_from_scratch(
+#       data = res_history_base_v2_rev_check
+#       , perm_id_vector = unique(list_houses_participants$perm_id)
+#     )
+#   ),
+
   tar_parquet(
     data_fu_base_rev_check,
     clean_fu_data_from_scratch(
       data = res_history_base_v2_rev_check
-      , perm_id_vector = unique(list_houses_participants$perm_id)
+      , perm_id_vector = unique(list_houses_participants_rev_check$perm_id)
     )
   ),
+
 
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
@@ -558,6 +567,16 @@ tar_parquet( family_inestability_treated_allSys,
     )
   ),
 
+tar_parquet( family_inestability_treated_allSys_rev_check_paper2, 
+  clean_interval_data_and_deploy(
+    family_inestability_raw, 
+    data_fu_base_rev_check,
+    id_1 = "perm_id",
+    id_2 = "perm_id",
+    field_date = "start"
+    )
+  ),
+
 tar_target(
   vFamily_inestability_names,
   read_variables_fam_inestability()
@@ -636,6 +655,15 @@ tar_parquet(
     )
 ),
 
+tar_parquet(
+  family_inestability_btw_or_2yr_fu_rev_check_paper2,
+  which_common_features_is_needed(
+    data = family_inestability_treated_allSys_rev_check_paper2
+    , w_sensitivity = TRUE
+    , w_common_variables = vFamily_inestability_names
+    )
+),
+
 
 #################
 #################
@@ -649,11 +677,17 @@ tar_parquet(
 ),
 
 
+tar_parquet(
+  family_inestability_choice_rev_check_paper2,
+  family_inestability_btw_or_2yr_fu_rev_check_paper2
+),
+
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
 #   SIBLING DEATH EXTRATTION
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
+# maybe we need 
 tar_parquet(
   family_siblings_death_extraction,
   siblings_treatment(
@@ -661,6 +695,15 @@ tar_parquet(
     data_base = data_fu_base
   )
 ),
+
+tar_parquet(
+  family_siblings_death_extraction_rev_check_paper2,
+  siblings_treatment(
+    data_mother = mother_w_basic_info_cleaned_rev_check,
+    data_base = data_fu_base_rev_check
+  )
+),
+
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
 #   PARENTAL MARITAL STATUS
@@ -674,6 +717,16 @@ tar_parquet( parental_marital_status_treated_allSys,
   clean_interval_data_and_deploy(
     family_inestability_raw, 
     data_fu_base %>% inner_join(mother_w_basic_info_cleaned, by = "perm_id"),
+    id_1 = "perm_id",
+    id_2 = "mother_perm_id",
+    field_date = "start"
+    )
+  ),
+
+tar_parquet( parental_marital_status_treated_allSys_rev_check_paper2, 
+  clean_interval_data_and_deploy(
+    family_inestability_raw, 
+    data_fu_base_rev_check %>% inner_join(mother_w_basic_info_cleaned_rev_check, by = "perm_id"),
     id_1 = "perm_id",
     id_2 = "mother_perm_id",
     field_date = "start"
@@ -698,6 +751,15 @@ tar_parquet(
   parental_marital_status_choice,
   which_common_features_is_needed(
     data = parental_marital_status_treated_allSys
+    , w_sensitivity = TRUE
+    , w_common_variables = c("marital_status")
+    )
+),
+
+tar_parquet(
+  parental_marital_status_choice_rev_check_paper2,
+  which_common_features_is_needed(
+    data = parental_marital_status_treated_allSys_rev_check_paper2
     , w_sensitivity = TRUE
     , w_common_variables = c("marital_status")
     )
@@ -2097,19 +2159,19 @@ tar_parquet(
   tar_parquet(
     data_end_joining_pre_model,
     joining_data_w_visits(
-        data_fu_base = data_fu_base,
-        mother_w_basic_info_cleaned = mother_w_basic_info_cleaned,
-        indv_edu_ocu_choice = indv_edu_ocu_choice,
+        data_fu_base = data_fu_base,                                                # p
+        mother_w_basic_info_cleaned = mother_w_basic_info_cleaned,                  # p
+        indv_edu_ocu_choice = indv_edu_ocu_choice,                                  # p
         family_inestability_choice = family_inestability_choice,
         family_siblings_death_extraction = family_siblings_death_extraction,
         parental_marital_status_choice = parental_marital_status_choice,
         house_features_btw_x_choice = house_features_btw_x_choice,
-        house_econ_btw_x_choice = house_econ_btw_x_choice,
+        house_econ_btw_x_choice = house_econ_btw_x_choice,                          # p
         mca_part_1_econ = mca_part_1_econ,
-        h_visits_total_by_participants = h_visits_total_by_participants, 
+        h_visits_total_by_participants = h_visits_total_by_participants,            # p
         # we will need put 0 in miss values on no visits 
-        data_SES_created = data_SES_created,
-        distance_data_treatment_GIS = distance_data_treatment_GIS, # 56 out manhica
+        data_SES_created = data_SES_created,                                        # p
+        distance_data_treatment_GIS = distance_data_treatment_GIS, # 56 out manhica # p
         location_clean = location_clean,
         data_environment = data_environment) %>%
     process_final_variables(.,names_to_impute_miss =  names(data_environment))
@@ -2133,6 +2195,36 @@ tar_parquet(
 #     "/outputs/data-treated/data_to_model_and_analise.rds"
 #     )
 # ), 
+
+  tar_parquet(
+    data_end_joining_pre_model_rev_check_paper2,
+    joining_data_w_visits(
+        data_fu_base = data_fu_base_rev_check,                                                # p
+        mother_w_basic_info_cleaned = mother_w_basic_info_cleaned_rev_check,                  # p
+        indv_edu_ocu_choice = indv_edu_ocu_choice_rev_check,                                  # p
+        family_inestability_choice = family_inestability_choice_rev_check_paper2,
+        family_siblings_death_extraction = family_siblings_death_extraction_rev_check_paper2,
+        parental_marital_status_choice = parental_marital_status_choice_rev_check_paper2,
+        house_features_btw_x_choice = house_features_btw_x_choice_rev_check,                  # p
+        house_econ_btw_x_choice = house_econ_btw_x_choice_rev_check,                          
+        mca_part_1_econ = mca_part_1_econ_rev_check,
+        h_visits_total_by_participants = h_visits_total_by_participants_rev_check,            # p
+        # we will need put 0 in miss values on no visits 
+        data_SES_created = data_SES_created_rev_check,                                        # p
+        distance_data_treatment_GIS = distance_data_treatment_GIS_rev_check, # 56 out manhica # p
+        location_clean = location_clean,
+        data_environment = data_environment) %>%
+    process_final_variables(.,names_to_impute_miss =  names(data_environment))
+
+  ),
+
+  tar_parquet(
+    data_to_model_and_analise_rev_check_paper2,
+    treat_pre_model_data(
+        data_end_joining_pre_model_rev_check_paper2
+    )
+  ),
+
 
 ##########
 ##########
@@ -2169,6 +2261,16 @@ tar_target(
     )
 ),
 
+tar_target(
+    buffer_by_facilities_rev_check_paper2,
+    generate_buffers(
+        data_to_model_and_analise = data_to_model_and_analise_rev_check_paper2,
+        percentage_of_block = 0.90,
+        health_facilities_w = health_facilities_w
+
+    )
+),
+
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
 #    generating datas for the report
@@ -2183,20 +2285,49 @@ tar_target(
 
 ),
 
+tar_target(
+  limit_by_geo_90_paper2_rev_check_paper2,
+  limit_by_geo_and_metric(data_to_model_and_analise_rev_check_paper2
+                              ,group_field = "healthdist_name_facility_all"
+                              ,metric = "healthdist_all"
+                              ,percentage_limit = 0.9)
+
+),
+
 tar_parquet(
   data_end_90_perce_distance_quantile_paper2,
   subseting_by_limit_geo(
     data = data_to_model_and_analise,
     limit = limit_by_geo_90_paper2,
-    health_principal_vector = c( "Manhica sede",
-    "Maragra",
-    "Ilha Josina Machel",
-    "Taninga",
-    "Nwamatibjana", # is palmeira - is the name of hospital
-    "Malavele",
-    "Xinavane",
-    "Palmeira" 
-    # Maluana - otros que no estan
+    health_principal_vector = c( 
+        "Manhica sede",
+        "Maragra",
+        "Ilha Josina Machel",
+        "Taninga",
+        "Nwamatibjana", # is palmeira - is the hospital name
+        "Malavele",
+        "Xinavane",
+        "Palmeira" 
+        # Maluana - otros que no estan
+    )
+  )
+),
+
+tar_parquet(
+  data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+  subseting_by_limit_geo(
+    data = data_to_model_and_analise_rev_check_paper2,
+    limit = limit_by_geo_90_paper2_rev_check_paper2,
+    health_principal_vector = c( 
+        "Manhica sede",
+        "Maragra",
+        "Ilha Josina Machel",
+        "Taninga",
+        "Nwamatibjana", # is palmeira - is the hospital name
+        "Malavele",
+        "Xinavane",
+        "Palmeira" 
+        # Maluana - otros que no estan
     )
   )
 )
@@ -2229,19 +2360,28 @@ tar_parquet(
 # SRE - SURROUNDING RESIDENTIAL ENVIRONMENT
 ##
 
-,tar_target(SRE_variables, get_sre_variables( names = complete_set_names, 
-                                    type = environments_list[1] ) )# here the parameters are ilusory xd
+  ,tar_target(
+      SRE_variables, 
+      get_sre_variables(
+          names = complete_set_names, 
+          type = environments_list[1]
+      ) 
+      )# here the parameters are ilusory xd
 
 ##
 # SEA - SOCIO-ECONOMIC ADVERSITY
 ##
 ,tar_target(
   SEA_variables, 
-  c(get_generic_variables( data_names = complete_set_names,
-                                        type = environments_list[2],
-                                        restrict_variable = c("has_tractor_mca", "long_head_unemployed_mca") )
-# names(data)
-, "mother_education")
+  c(
+      get_generic_variables(
+          data_names = complete_set_names,
+          type = environments_list[2],
+          restrict_variable = c("has_tractor_mca",
+                                "long_head_unemployed_mca") 
+      )
+      , "mother_education"
+    )
 )
 
 
@@ -2251,9 +2391,11 @@ tar_parquet(
 
 ,tar_target(
   HE_variables,
-   get_generic_variables(  data_names = complete_set_names,
-                                        type = environments_list[3],
-                                        restrict_variable = c("wat_treatment_proc_cat_HEMCA") )
+   get_generic_variables(
+      data_names = complete_set_names,
+      type = environments_list[3],
+      restrict_variable = c("wat_treatment_proc_cat_HEMCA")
+    )
 )
 
 ##
@@ -2261,12 +2403,13 @@ tar_parquet(
 ##
 ,tar_target(
   FI_variables,
-   c( "death_of_mother" 
+   c(
+      "death_of_mother" 
       ,"death_of_father" 
       ,"living_without_mother_in_household" 
       ,"living_without_father_in_household"
       ,"death_of_sibling"
-      )
+    )
 )
 
 ##########
@@ -2292,7 +2435,7 @@ tar_parquet(
 ##########
 
 # individuals variables
-
+# desc 2026: modelo realizado con offset en cero part
 ,tar_target(
   res_mod_all_grouoped_indv, 
   mod_any_set_of_variable(
@@ -2313,14 +2456,41 @@ tar_parquet(
       # ,
       # "mother_education"
        ),
-    where_to_save = "test_hpc",
-    environment_end = "all_together",
+    where_to_save = "ZI_off_cer",
+    environment_end = "all_ZI_off_cer",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+
+,tar_target(
+  res_mod_all_grouoped_indv_rev_check_paper2, 
+  mod_any_set_of_variable(
+    data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "h_visits",
+      "fu_months",
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+       ),
+    where_to_save = "ZI_off_cer_crp2",
+    environment_end = "all_ZI_off_cer_crp2",
     STD_variable = TRUE,
     name_facility_in_order = TRUE
   ))
 
 
 
+# modelo con RI incluido y sin offset en cero part 
 ,tar_target( # haciendo una copia para añadir el random intercept
   res_mod_all_grouoped_indv_random_intercept, 
   mod_any_set_of_variable_RI(
@@ -2341,11 +2511,165 @@ tar_parquet(
       , "(1 | house_number)"
        ),
     in_ZI_part = FALSE,
-    where_to_save = "Random intercept",
-    environment_end = "all_tg_RI",
+    where_to_save = "RI_1",
+    environment_end = "all_RI_1",
     STD_variable = TRUE,
     name_facility_in_order = TRUE
   ))
+
+# modelo con RI incluido y sin offset en cero part 
+,tar_target( # haciendo una copia para añadir el random intercept
+  res_mod_all_grouoped_indv_random_intercept_rev_check_paper2, 
+  mod_any_set_of_variable_RI(
+    data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "ri-zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+      , "(1 | house_number)"
+       ),
+    in_ZI_part = FALSE,
+    where_to_save = "RI_1_rcp2",
+    environment_end = "all_RI_1_rcp2",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+
+# modelando a zi sin offset en cero part
+
+,tar_target( # haciendo una copia para añadir el random intercept
+  res_mod_all_grouoped_indv_zi_modifyed, 
+  mod_any_set_of_variable_RI(
+    data_end_90_perce_distance_quantile_paper2,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "ri-zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+    #   , "(1 | house_number)"
+       ),
+    in_ZI_part = FALSE,
+    where_to_save = "ZI_2",
+    environment_end = "all_ZI_2",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+
+
+,tar_target( # haciendo una copia para añadir el random intercept
+  res_mod_all_grouoped_indv_zi_modifyed_rev_check_paper2, 
+  mod_any_set_of_variable_RI(
+    data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "ri-zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+    #   , "(1 | house_number)"
+       ),
+    in_ZI_part = FALSE,
+    where_to_save = "ZI_2_rcp2",
+    environment_end = "all_ZI_2_crp2",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# getting the results per out 90 percento and zi with no offset in cero part and no RI 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## no review
+##########
+##########
+# modelando a zi sin offset en cero part
+
+,tar_target( # haciendo una copia para añadir el random intercept
+  res_mod_all_grouoped_indv_zi_modifyed_all_set, 
+  mod_any_set_of_variable_RI(
+    data_to_model_and_analise,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "ri-zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+    #   , "(1 | house_number)"
+       ),
+    in_ZI_part = FALSE,
+    where_to_save = "ZI_2_mod_and_all_set",
+    environment_end = "all_ZI_2_all_set",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+##########
+##########
+## for review
+##########
+##########
+
+,tar_target( # haciendo una copia para añadir el random intercept
+  res_mod_all_grouoped_indv_zi_modifyed_all_set_crp2, 
+  mod_any_set_of_variable_RI(
+    data_to_model_and_analise_rev_check_paper2,
+    output_variables = "h_visits", # "h_visits"
+    variables_to_mod_or_end = all_environment_variables,
+    family_model = "ri-zero inflated", # poisson, zero inflated, logistic, quasipoisson, negative binomial
+    fml_base_vars = c(
+      "as.factor(gender)",
+      # "SES_var",
+      # "roaddist_std",
+      "healthdist_final_std",
+      "as.factor(healthdist_name_facility)",
+      "as.factor(year_birth)",
+      "mother_age_at_birth_of_child_std"
+      # ,
+      # "mother_education"
+    #   , "(1 | house_number)"
+       ),
+    in_ZI_part = FALSE,
+    where_to_save = "ZI_2_mod_and_all_set_crp2",
+    environment_end = "ZI_2_mod_and_all_set_crp2",
+    STD_variable = TRUE,
+    name_facility_in_order = TRUE
+  ))
+
 
 
 #-----------------------------------------------------------------------------#
@@ -2359,7 +2683,14 @@ tar_parquet(
 #   OBJECTS CREATIONS
 ########################################################################
 ########################################################################
-
+# 30/03/2026 - no me acuerdo porque ejecuto volvano en diferentes del mismo 
+# creo que en un punto me cundia no cambiar esta parte porque, si modificaba ... me 
+# ejecutabas diferentes versiones pero ahora es la misma
+# no me acuerdo hay varias versiones.. 
+# en process-data.R hay varios..
+# creo que ahora se podria eliminar 
+# la version 2, 
+# pero bueno de momento lo dejaremos tal cual .. 
 ##########
 ##########
 ## VOLCANO PART
@@ -2394,18 +2725,18 @@ tar_parquet(
 )
 
 
-, tar_target(
-  volcano_list_paper_randomIntercept,
-  volcano_from_scratch_RI_to_join(
-    list_coef =  res_mod_all_grouoped_indv_random_intercept,
-    list_variebles_interest = all_environment_variables,
-    where_to_save = here::here(
-      "outputs",
-      "03_VOLCANOPLOT_to_CHECK_ri_zi")
+# , tar_target(
+#   volcano_list_paper_randomIntercept,
+#   volcano_from_scratch_RI_to_join(
+#     list_coef =  res_mod_all_grouoped_indv_random_intercept,
+#     list_variebles_interest = all_environment_variables,
+#     where_to_save = here::here(
+#       "outputs",
+#       "03_VOLCANOPLOT_to_CHECK_ri_zi")
 
-    )
+#     )
 
-)
+# )
 
 , tar_target(
   volcano_list_paper_v2_direct_report_v2,
@@ -2419,6 +2750,155 @@ tar_parquet(
     )
 
 )
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# VOLCANO PLOT FOR PAPER 2 revision check
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## ZI w offset in cero part for review paper 2
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_zi_off_in_cero_crp2,
+  volcano_from_scratch(
+    list_coef = res_mod_all_grouoped_indv_rev_check_paper2,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "ZI_off_cer")
+    )
+)
+
+##########
+##########
+## ZI with RI and out off in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_RI_1,
+  volcano_from_scratch_RI_to_join(
+    list_coef =  res_mod_all_grouoped_indv_random_intercept,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "RI_1")
+    )
+
+)
+
+##########
+##########
+## ZI with RI and out off in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_RI_1_crp2,
+  volcano_from_scratch_RI_to_join(
+    list_coef =  res_mod_all_grouoped_indv_random_intercept_rev_check_paper2,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "RI_1_rcp2")
+    )
+
+)
+
+##########
+##########
+## ZI w out offset in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_zi_out_off_cero,
+  volcano_from_scratch_RI_to_join(
+    list_coef = res_mod_all_grouoped_indv_zi_modifyed,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "ZI_2")
+    )
+)
+
+##########
+##########
+## ZI w out offset in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_zi_out_off_cero_crp2,
+  volcano_from_scratch_RI_to_join(
+    list_coef = res_mod_all_grouoped_indv_zi_modifyed_rev_check_paper2,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "ZI_2_rcp2")
+    )
+)
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# volvcano plot by all data set and ZI with no off in Cero part 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## ZI w out offset in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_zi_out_off_cero_all_set,
+  volcano_from_scratch_RI_to_join(
+    list_coef = res_mod_all_grouoped_indv_zi_modifyed_all_set,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "ZI_2_all_set")
+    )
+)
+
+##########
+##########
+## ZI w out offset in cero part
+##########
+##########
+
+, tar_target(
+  volcano_list_paper_zi_out_off_cero_all_set_crp2,
+  volcano_from_scratch_RI_to_join(
+    list_coef = res_mod_all_grouoped_indv_zi_modifyed_all_set_crp2,
+    list_variebles_interest = all_environment_variables,
+    where_to_save = here::here(
+      "outputs",
+      "05_review_paper_volcano_plot",
+      "ZI_2_all_set_rcp2")
+    )
+)
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# ELASTIC NET
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
 
 ##########
 ##########
@@ -2449,6 +2929,134 @@ tar_parquet(
 
     )
   )
+
+,tar_target(
+  elastic_net_paper_2_w_std_and_penalty,
+  elastic_net_generator_w_penalty_v2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    all_environment_variables = all_environment_variables,
+    covariables = c(
+        # "offset(log(fu_months))", 
+        "as.factor(gender)",
+        "healthdist_final_std",
+        "as.factor(healthdist_name_facility)",
+        "as.factor(year_birth)",
+        "mother_age_at_birth_of_child_std"
+    ),
+    output_variable = "h_visits",
+    where_to_save = here::here(
+      "outputs",
+      "06_review_paper_elastic",
+      "1rt_elastic_w_std_penalty"),
+    offset_var = "fu_months",
+    penalty_vector = TRUE, # NULL if want all the variables are equally penalized
+    kfold_n = 10 # si metemeos que kflod = nrow(x) entonces haremos una LOOCV - creo que kfold = 10 es valido
+
+    )
+  )
+
+  ##########
+  ##########
+  ## review paper 2 - elastic net with std numerical variables and categorical ones
+  ##########
+  ##########
+
+  ,tar_target(
+  elastic_net_paper_2_w_std_and_penalty_crp2,
+  elastic_net_generator_w_penalty_v2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    all_environment_variables = all_environment_variables,
+    covariables = c(
+        # "offset(log(fu_months))", 
+        "as.factor(gender)",
+        "healthdist_final_std",
+        "as.factor(healthdist_name_facility)",
+        "as.factor(year_birth)",
+        "mother_age_at_birth_of_child_std"
+    ),
+    output_variable = "h_visits",
+    where_to_save = here::here(
+      "outputs",
+      "06_review_paper_elastic",
+      "2on_elastic_w_std_penalty_crp2"),
+    offset_var = "fu_months",
+    penalty_vector = TRUE, # NULL if want all the variables are equally penalized
+    kfold_n = 10 # si metemeos que kflod = nrow(x) entonces haremos una LOOCV - creo que kfold = 10 es valido
+
+    )
+  )
+
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# ELASTIC PARA ALL SET DE DATOS Y CON ZI SIN OFF EN CERO PART - sinRI 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+,tar_target(
+  elastic_net_paper_2_w_std_and_penalty_all_set,
+  elastic_net_generator_w_penalty_v2(
+    data = data_to_model_and_analise,
+    all_environment_variables = all_environment_variables,
+    covariables = c(
+        # "offset(log(fu_months))", 
+        "as.factor(gender)",
+        "healthdist_final_std",
+        "as.factor(healthdist_name_facility)",
+        "as.factor(year_birth)",
+        "mother_age_at_birth_of_child_std"
+    ),
+    output_variable = "h_visits",
+    where_to_save = here::here(
+      "outputs",
+      "06_review_paper_elastic",
+      "1rt_elastic_all_set"),
+    offset_var = "fu_months",
+    penalty_vector = TRUE, # NULL if want all the variables are equally penalized
+    kfold_n = 10 # si metemeos que kflod = nrow(x) entonces haremos una LOOCV - creo que kfold = 10 es valido
+
+    )
+  )
+
+  ##########
+  ##########
+  ## review paper 2 - elastic net with std numerical variables and categorical ones
+  ##########
+  ##########
+
+  ,tar_target(
+  elastic_net_paper_2_w_std_and_penalty_all_set_crp2,
+  elastic_net_generator_w_penalty_v2(
+    data = data_to_model_and_analise_rev_check_paper2,
+    all_environment_variables = all_environment_variables,
+    covariables = c(
+        # "offset(log(fu_months))", 
+        "as.factor(gender)",
+        "healthdist_final_std",
+        "as.factor(healthdist_name_facility)",
+        "as.factor(year_birth)",
+        "mother_age_at_birth_of_child_std"
+    ),
+    output_variable = "h_visits",
+    where_to_save = here::here(
+      "outputs",
+      "06_review_paper_elastic",
+      "2on_elastic_all_set_crp2"),
+    offset_var = "fu_months",
+    penalty_vector = TRUE, # NULL if want all the variables are equally penalized
+    kfold_n = 10 # si metemeos que kflod = nrow(x) entonces haremos una LOOCV - creo que kfold = 10 es valido
+
+    )
+  )
+
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# XXX_TEXT___TITLE
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
 
 # # pen
 # ,tar_target(
@@ -2564,6 +3172,11 @@ tar_parquet(
   load_variables_by_500()
 )
 
+,tar_target(
+  testtesttest,
+  load_variables_by_500()
+)
+
 
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
@@ -2598,6 +3211,43 @@ tar_parquet(
   )
 )
 
+, tar_parquet(
+  data_paper_2_cluster_crp2,
+  generator_dummy_vars_and_std_num_vars(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    general_variables = all_environment_variables
+  )
+)
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# all data set _ for cluster not just 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+, tar_parquet(
+  data_paper_2_cluster_all_set,
+  generator_dummy_vars_and_std_num_vars(
+    data = data_to_model_and_analise,
+    general_variables = all_environment_variables
+  )
+)
+
+, tar_parquet(
+  data_paper_2_cluster_all_set_crp2,
+  generator_dummy_vars_and_std_num_vars(
+    data = data_to_model_and_analise_rev_check_paper2,
+    general_variables = all_environment_variables
+  )
+)
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# correlation descriptions
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
 ##########
 ##########
 ## descriptivo y plots del reporte:
@@ -2610,17 +3260,135 @@ tar_parquet(
     data = data_paper_2_cluster,
     variable_list = list(
       all_environment_variables = all_environment_variables,
-      volcano_normal_cut = volcano_list_paper_22$normal_cut_variables,
-      volcano_bonfer_cut = volcano_list_paper_22$bonfer_cut_variables,
+
+      volcano_normal_cut_ZI_w_off_in_cero = volcano_list_paper_22$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_off_in_cero = volcano_list_paper_22$bonfer_cut_variables,
+
+      volcano_normal_cut_ZI_w_RI_out_off_in_cero = volcano_list_paper_RI_1$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_RI_out_off_in_cero = volcano_list_paper_RI_1$bonfer_cut_variables,
+
+      volcano_normal_cut_ZI_w_ZI_out_off_in_cero = volcano_list_paper_zi_out_off_cero$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_ZI_out_off_in_cero = volcano_list_paper_zi_out_off_cero$bonfer_cut_variables,
+
       elastic_variables = elastic_net_paper_2$list_significative_variables,
+
       all_env_variables_w_outcome = c("h_visits", "h_visits_respiratory", all_environment_variables)
-    ),
-    where_to_save =  here::here(
+      
+      )
+    ,
+    where_to_save = here::here(
       "outputs",
-      "02_REPORT1",
-      "correlation_part_v3")
+      "07_desciptive_part_ZI",
+      "correlation_plots"),
+    orig_path = here::here()
   )
 )
+
+##########
+##########
+## desc - with zi and off in cero part 
+##########
+##########
+
+,tar_target(
+  data_paper_2_cluster_descriptive_bygroups_crp2,
+
+  descriptive_by_variable_list_corr_part(
+    data = data_paper_2_cluster_crp2,
+    variable_list = list(
+      all_environment_variables = all_environment_variables,
+      all_env_variables_w_outcome = c("h_visits", "h_visits_respiratory", all_environment_variables),
+
+    #   elastic_variables_crp2 = elastic_net_paper_2_w_std_and_penalty_crp2$list_significative_variables, # this is happening becaus is selecting character variables, and for the correlation is not good
+
+      volcano_normal_cut_ZI_w_off_in_cero = volcano_list_paper_zi_off_in_cero_crp2$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_off_in_cero = volcano_list_paper_zi_off_in_cero_crp2$bonfer_cut_variables,
+
+      volcano_normal_cut_ZI_w_RI_out_off_in_cero = volcano_list_paper_RI_1_crp2$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_RI_out_off_in_cero = volcano_list_paper_RI_1_crp2$bonfer_cut_variables,
+
+      volcano_normal_cut_ZI_w_ZI_out_off_in_cero = volcano_list_paper_zi_out_off_cero_crp2$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_ZI_out_off_in_cero = volcano_list_paper_zi_out_off_cero_crp2$bonfer_cut_variables
+      ),
+    where_to_save =  here::here(
+      "outputs",
+      "07_desciptive_part_ZI",
+      "correlation_plots_for_check_rev_paper2"),
+    orig_path = here::here()
+  )
+)
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# all set - correlation plots 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## descriptivo y plots del reporte:
+##########
+##########
+
+,tar_target(
+  data_paper_2_cluster_descriptive_bygroups_all_set,
+  descriptive_by_variable_list_corr_part(
+    data = data_paper_2_cluster,
+    variable_list = list(
+      all_environment_variables = all_environment_variables,
+
+      volcano_normal_cut_ZI_w_off_in_cero = volcano_list_paper_zi_out_off_cero_all_set$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_off_in_cero = volcano_list_paper_zi_out_off_cero_all_set$bonfer_cut_variables,
+
+      elastic_variables = elastic_net_paper_2_w_std_and_penalty_all_set$list_significative_variables,
+
+      all_env_variables_w_outcome = c("h_visits", "h_visits_respiratory", all_environment_variables)
+      
+      )
+    ,
+    where_to_save = here::here(
+      "outputs",
+      "07_desciptive_part_ZI",
+      "all_set",
+      "normal"),
+    orig_path = here::here()
+  )
+)
+
+##########
+##########
+## desc - with zi and off in cero part 
+##########
+##########
+
+,tar_target(
+  data_paper_2_cluster_descriptive_bygroups_all_set_crp2,
+
+  descriptive_by_variable_list_corr_part(
+    data = data_paper_2_cluster_crp2,
+    variable_list = list(
+
+      all_environment_variables = all_environment_variables,
+
+      volcano_normal_cut_ZI_w_off_in_cero = volcano_list_paper_zi_out_off_cero_all_set_crp2$normal_cut_variables,
+      volcano_bonfer_cut_ZI_w_off_in_cero = volcano_list_paper_zi_out_off_cero_all_set_crp2$bonfer_cut_variables,
+
+      elastic_variables = elastic_net_paper_2_w_std_and_penalty_all_set_crp2$list_significative_variables,
+
+      all_env_variables_w_outcome = c("h_visits", "h_visits_respiratory", all_environment_variables)
+      
+      ),
+    where_to_save =  here::here(
+      "outputs",
+      "07_desciptive_part_ZI",
+      "all_set",
+      "crp"),
+    orig_path = here::here()
+  )
+)
+
+
 
 #-----------------------------------------------------------------------------#
 #-----------------------------------------------------------------------------#
@@ -3274,6 +4042,56 @@ tar_parquet(
 )
 )
 
+,tar_target(
+  kprototypes_cluster_paper2_ela_without_90perc_k2 ,
+  kpprototype_clustering_plot(
+    data = data_to_model_and_analise,
+    all_environment_variables = select_cluster_variables_report_part,
+    where_to_save = here::here(
+        "outputs",
+        "cluster_k2_complete_set"),
+    max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+    #   manual_k = optimal_k_by_nbclust_elastic_vars,
+    manual_k = 2,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "all_data_k2",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                            SEA_variables = SEA_variables, 
+                            HE_variables = HE_variables, 
+                            FI_variables = FI_variables)
+)
+)
+
+,tar_target(
+  kprototypes_cluster_paper2_k_2_crp2,
+  kpprototype_clustering_plot(
+  data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+  all_environment_variables = select_cluster_variables_report_part,
+  where_to_save = here::here(
+      "outputs",
+      "08_CLUSTER_crp2",
+      "k_2"),
+  max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+#   manual_k = optimal_k_by_nbclust_elastic_vars,
+  manual_k = 2,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "ela_prot_2",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                          SEA_variables = SEA_variables, 
+                          HE_variables = HE_variables, 
+                          FI_variables = FI_variables)
+)
+)
 
 ##########
 ##########
@@ -3287,7 +4105,7 @@ tar_parquet(
   all_environment_variables = select_cluster_variables_report_part,
   where_to_save = here::here(
       "outputs",
-      "CLUSTER_V2255"),
+      "CLUSTER_V22"),
   max_clusters = NULL,  # Evaluar de 2 a 10 clusters
   manual_k = 3,
     manhica = manhica,
@@ -3303,6 +4121,186 @@ tar_parquet(
                           FI_variables = FI_variables)
 )
 )
+
+,tar_target(
+  kprototypes_cluster_paper2_ela_without_90perc_k3 ,
+  kpprototype_clustering_plot(
+    data = data_to_model_and_analise,
+    all_environment_variables = select_cluster_variables_report_part,
+    where_to_save = here::here(
+        "outputs",
+        "cluster_k3_complete_set"),
+    max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+    #   manual_k = optimal_k_by_nbclust_elastic_vars,
+    manual_k = 3,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "all_data_k3",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                            SEA_variables = SEA_variables, 
+                            HE_variables = HE_variables, 
+                            FI_variables = FI_variables)
+)
+)
+
+,tar_target(
+  kprototypes_cluster_paper2_k_3_crp2,
+  kpprototype_clustering_plot(
+  data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+  all_environment_variables = select_cluster_variables_report_part,
+  where_to_save = here::here(
+      "outputs",
+      "08_CLUSTER_crp2",
+      "k_3"),
+  max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+#   manual_k = optimal_k_by_nbclust_elastic_vars,
+  manual_k = 3,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "ela_prot_2",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                          SEA_variables = SEA_variables, 
+                          HE_variables = HE_variables, 
+                          FI_variables = FI_variables)
+)
+)
+
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# cluster para k 1 y k 3 con all set y sin off in cero ni RI 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## k = 2
+##########
+##########
+
+,tar_target(
+  kprototypes_cluster_paper2_ela_without_90perc_no_off_cero_k2 ,
+  kpprototype_clustering_plot(
+    data = data_to_model_and_analise,
+    all_environment_variables = select_cluster_variables_report_part,
+    where_to_save = here::here(
+        "outputs",
+        "09_CLUSTER",
+        "all_set_k2_no_off_in_cero"),
+    max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+    #   manual_k = optimal_k_by_nbclust_elastic_vars,
+    manual_k = 2,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "normal",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                            SEA_variables = SEA_variables, 
+                            HE_variables = HE_variables, 
+                            FI_variables = FI_variables),
+    use_zi_v2 = TRUE
+)
+)
+
+,tar_target(
+  kprototypes_cluster_paper2_no_off_cero_k2_crp2,
+  kpprototype_clustering_plot(
+  data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+  all_environment_variables = select_cluster_variables_report_part,
+  where_to_save = here::here(
+      "outputs",
+      "09_CLUSTER",
+      "all_set_k2_no_off_in_cero_crp"),
+  max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+#   manual_k = optimal_k_by_nbclust_elastic_vars,
+  manual_k = 2,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "crp",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                          SEA_variables = SEA_variables, 
+                          HE_variables = HE_variables, 
+                          FI_variables = FI_variables),
+    use_zi_v2 = TRUE
+)
+)
+
+##########
+##########
+## k = 3
+##########
+##########
+
+,tar_target(
+  kprototypes_cluster_paper2_ela_without_90perc_no_off_cero_k3 ,
+  kpprototype_clustering_plot(
+    data = data_to_model_and_analise,
+    all_environment_variables = select_cluster_variables_report_part,
+    where_to_save = here::here(
+        "outputs",
+        "09_CLUSTER",
+        "all_set_k3_no_off_in_cero"),
+    max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+    #   manual_k = optimal_k_by_nbclust_elastic_vars,
+    manual_k = 3,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "normal",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                            SEA_variables = SEA_variables, 
+                            HE_variables = HE_variables, 
+                            FI_variables = FI_variables),
+    use_zi_v2 = TRUE
+)
+)
+
+,tar_target(
+  kprototypes_cluster_paper2_no_off_cero_k3_crp2,
+  kpprototype_clustering_plot(
+  data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+  all_environment_variables = select_cluster_variables_report_part,
+  where_to_save = here::here(
+      "outputs",
+      "09_CLUSTER",
+      "all_set_k3_no_off_in_cero_crp"),
+  max_clusters = NULL,  # Evaluar de 2 a 10 clusters
+#   manual_k = optimal_k_by_nbclust_elastic_vars,
+  manual_k = 3,
+    manhica = manhica,
+    health_facilities = health_facilities,
+    roads = roads,
+    buffer_by_facilities = buffer_by_facilities,
+    zona = postos,
+    districts = districts,
+    prefix = "crp",
+    list_entorno  = list( SRE_variables = SRE_variables, 
+                          SEA_variables = SEA_variables, 
+                          HE_variables = HE_variables, 
+                          FI_variables = FI_variables),
+    use_zi_v2 = TRUE
+)
+)
+
+
 # ##########
 # ##########
 # ## K = 4
@@ -3430,6 +4428,16 @@ tar_parquet(
 ##########
 ##########
 
+##########
+##########
+## exwas all 
+##########
+##########
+
+###
+#  ZI w off in cero part 
+###
+
 ,tar_target(
   model_significative_exWAS_normal_cut,
   mod_complete_sig_variables(
@@ -3442,7 +4450,7 @@ tar_parquet(
             "as.factor(year_birth)",
             "mother_age_at_birth_of_child_std"
         ),
-    significative_variables = volcano_list_paper_22$normal_cut_variables[volcano_list_paper_22$normal_cut_variables != "artificial_light_at_night_diff_1000_final"],
+    significative_variables = volcano_list_paper_22$normal_cut_variables,
     set_model = "zero inflated",
     outcome = "h_visits",
     name_facility_in_order = TRUE,
@@ -3451,28 +4459,6 @@ tar_parquet(
     )
 )
 
-
-,tar_target(
-  model_significative_exWAS_normal_cut_ri_zi,
-  mod_complete_sig_variables_2(
-    data = data_end_90_perce_distance_quantile_paper2,
-    covariables = c(
-            "offset(log(fu_months))", 
-            "as.factor(gender)",
-            "healthdist_final_std",
-            "as.factor(healthdist_name_facility)",
-            "as.factor(year_birth)",
-            "mother_age_at_birth_of_child_std",
-             "(1 | house_number)"
-        ),
-    significative_variables = volcano_list_paper_randomIntercept$normal_cut_variables,
-    set_model = "ri-zero inflated",
-    outcome = "h_visits",
-    name_facility_in_order = TRUE,
-    STD_variable = TRUE,
-    add_decriptive = TRUE
-    )
-)
 
 ,tar_target(
   model_significative_exWAS_bonfe_cut,
@@ -3495,6 +4481,361 @@ tar_parquet(
     )
 )
 
+###
+#  ZI w offset in cero part for review paper 2
+### this is by first round, the will use the first version mod_complete_sig_variables
+
+,tar_target(
+  model_significative_exWAS_normal_cut_zi_off_in_cero_crp2,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_off_in_cero_crp2$normal_cut_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_zi_off_in_cero_crp2,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_off_in_cero_crp2$bonfer_cut_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+###
+#  ZI with RI and out off in cero part
+### this is used by TMBNN or waht ever with ZI RI 
+
+,tar_target(
+  model_significative_exWAS_normal_cut_RI_1,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+            "(1 | house_number)"
+        ),
+    significative_variables = volcano_list_paper_RI_1$normal_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_RI_1,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+             "(1 | house_number)"
+        ),
+    significative_variables = volcano_list_paper_RI_1$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+##
+# Revision check 
+##
+
+,tar_target(
+  model_significative_exWAS_normal_cut_RI_1_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+             "(1 | house_number)"
+        ),
+    significative_variables = volcano_list_paper_RI_1_crp2$normal_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_RI_1_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+             "(1 | house_number)"
+        ),
+    significative_variables = volcano_list_paper_RI_1_crp2$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+###
+#  ZI with RI and out off in cero part
+### this is used by TMBNN or waht ever with ZI RI 
+
+,tar_target(
+  model_significative_exWAS_normal_cut_zi_out_off_cero,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero$normal_cut_variables,
+    set_model = "ri-zero inflated", # here we wuit the random intersept but we yuse this family - for quit the off form cero part
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_zi_out_off_cero,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+##
+# Revision check 
+##
+
+,tar_target(
+  model_significative_exWAS_normal_cut_zi_out_off_cero_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_crp2$normal_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_zi_out_off_cero_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_crp2$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# MODEL SIGNIFICATIVE VARIBLES - for all set - ZI no off in cero and no RI 
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+###
+#  ZI with RI and out off in cero part
+### this is used by TMBNN or waht ever with ZI RI 
+
+,tar_target(
+  model_significative_exWAS_normal_cut_zi_out_off_cero_all_set,
+  mod_complete_sig_variables_2(
+    data = data_to_model_and_analise,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_all_set$normal_cut_variables,
+    set_model = "ri-zero inflated", # here we wuit the random intersept but we yuse this family - for quit the off form cero part
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_zi_out_off_cero_all_set,
+  mod_complete_sig_variables_2(
+    data = data_to_model_and_analise_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_all_set$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+##
+# Revision check 
+##
+
+,tar_target(
+  model_significative_exWAS_normal_cut_zi_out_off_cero_all_set_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_all_set_crp2$normal_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_exWAS_bonfe_cut_zi_out_off_cero_all_set_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = volcano_list_paper_zi_out_off_cero_all_set_crp2$bonfer_cut_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# ELASTIC NET
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+##########
+##########
+## ELASTIC NET 
+##########
+##########
+
+##
+# by normal - old one 
+##
 
 ,tar_target(
   model_significative_elasticNet,
@@ -3510,6 +4851,186 @@ tar_parquet(
         ),
     significative_variables = elastic_net_paper_2$list_significative_variables,
     set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+,tar_target(
+  model_significative_elasticNet_crp2,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2$list_significative_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+
+,tar_target(
+  model_significative_elasticNet_correct_elastic,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+,tar_target(
+  model_significative_elasticNet_correct_elastic_crp2,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty_crp2$list_significative_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+,tar_target(
+  model_significative_elasticNet_crp2_correct_elastic,
+  mod_complete_sig_variables(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+##
+# Elastic - by - std and penalsty and off no cero part 
+##
+
+,tar_target( # MAIN SUSTITUYENDO AL DE ARRIBA !!!
+  model_significative_elasticNet_std_off_no_cero_normal_zi,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+,tar_target(
+  model_significative_elasticNet_std_off_no_cero_zi_RI,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+             "(1 | house_number)"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+##
+# the same w out offset in cero part ZI  for review check paper 2
+##
+
+
+,tar_target(
+  model_significative_elasticNet_std_off_no_cero_normal_zi_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "ri-zero inflated",
+    outcome = "h_visits",
+    name_facility_in_order = TRUE,
+    STD_variable = TRUE,
+    add_decriptive = TRUE
+    )
+)
+
+,tar_target(
+  model_significative_elasticNet_std_off_no_cero_zi_RI_crp2,
+  mod_complete_sig_variables_2(
+    data = data_end_90_perce_distance_quantile_paper2_rev_check_paper2,
+    covariables = c(
+            "offset(log(fu_months))", 
+            "as.factor(gender)",
+            "healthdist_final_std",
+            "as.factor(healthdist_name_facility)",
+            "as.factor(year_birth)",
+            "mother_age_at_birth_of_child_std",
+             "(1 | house_number)"
+        ),
+    significative_variables = elastic_net_paper_2_w_std_and_penalty$list_significative_variables,
+    set_model = "ri-zero inflated",
     outcome = "h_visits",
     name_facility_in_order = TRUE,
     STD_variable = TRUE,
@@ -3582,7 +5103,6 @@ tar_parquet(
 
 ,tar_target(
     diagnosis_raw_for_paper2,
-
     TFL_diagnosis_for_paper2(
         h_visits_outcoume_creation = h_visits_outcoume_creation,
         data_end_90_perce_distance_quantile_paper2 = data_end_90_perce_distance_quantile_paper2
@@ -3673,6 +5193,16 @@ tar_parquet(
 #   ))
 
 
+##########
+##########
+## este report recull - la primera ejecucion con estas especificaciones
+##########
+##########
+# 1) el zi tiene offset en ambas partes
+# 2) y esta realizado con el 90% del set de datos 
+# ZI_off_cero_inc
+# and ELASTIC NET ORIGININAL withou scaling numerical variables 
+
 , tar_target(
   report_v7,
   rmarkdown::render(
@@ -3697,7 +5227,267 @@ tar_parquet(
         # , kprototypes_cluster_paper2_ela_5 = kprototypes_cluster_paper2_ela_5
         # , kpototypes_cluster_paper2_ela_6 = kprototypes_cluster_paper2_ela_6
         # , kprototypes_cluster_paper2_ela_nolim = kprototypes_cluster_paper2_ela_nolim
-        , rex = "1"
+        , rex = "4"
+        ),
+      output_format = "all",
+      output_dir = here::here(
+        #   "FC-manhica_child_adversity_data",
+          "reports",
+          "reports-results",
+          "25-A-analysis_BASE_pre_review_paper2"
+        #   "overview_v3-k2andk3 - A - v2"
+          )
+  ))
+
+,tarchetypes::tar_render(
+    name = report_v7_crp2,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_zi_off_in_cero_crp2
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_zi_off_in_cero_crp2
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_zi_off_in_cero_crp2
+        , model_significative_elasticNet = model_significative_elasticNet_crp2
+        , elastic_net_paper_2 = elastic_net_paper_2
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_k_2_crp2
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_k_3_crp2
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-A2-analysis_BASE_pre_review_paper2_crp2"
+        ),
+    output_format = "all"
+)
+
+##########
+##########
+## ZI _ with offset in cero part and 90% apply, and elasticnet with scale 
+##########
+##########
+
+
+,tarchetypes::tar_render(
+    name = report_base_corrected,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_22
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut
+        , model_significative_elasticNet = model_significative_elasticNet_correct_elastic
+        , elastic_net_paper_2 = elastic_net_paper_2
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_ela
+
+        # , kprototypes_cluster_paper2_all_small_buff = kprototypes_cluster_paper2_all_small_buff
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_ela_3
+        # , kprototypes_cluster_paper2_ela_4 = kprototypes_cluster_paper2_ela_4
+        # , kprototypes_cluster_paper2_ela_5 = kprototypes_cluster_paper2_ela_5
+        # , kpototypes_cluster_paper2_ela_6 = kprototypes_cluster_paper2_ela_6
+        # , kprototypes_cluster_paper2_ela_nolim = kprototypes_cluster_paper2_ela_nolim
+        , rex = "4"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-A3-analysis_BASE_correcting_elastic"
+        ),
+    output_format = "all"
+)
+
+,tarchetypes::tar_render(
+    name = report_base_corrected_crp2, # crp = check review paper 
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_zi_off_in_cero_crp2
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_zi_off_in_cero_crp2
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_zi_off_in_cero_crp2
+        , model_significative_elasticNet = model_significative_elasticNet_correct_elastic_crp2
+        , elastic_net_paper_2 = elastic_net_paper_2_w_std_and_penalty
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_k_2_crp2
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_k_3_crp2
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-A2-analysis_BASE_pre_review_paper2_crp2"
+        ),
+    output_format = "all"
+)
+
+
+# ##########
+# ##########
+# ## este report recull - el informe sin off en ZI y el 90 % de los datos
+# ##########
+# ##########
+# # 1) el zi NO tiene offset en ambas partes
+# # 2) y esta realizado con el 90% del set de datos 
+# # ZI_off_cero_incl
+
+,tarchetypes::tar_render(
+    name = report_ZI_0,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_zi_out_off_cero
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_zi_out_off_cero
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_zi_out_off_cero
+        , model_significative_elasticNet = model_significative_elasticNet_std_off_no_cero_normal_zi
+        , elastic_net_paper_2 = elastic_net_paper_2_w_std_and_penalty
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_ela
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_ela_3
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-B-analysis_normal_zi_no_off_in_ceropart"
+        ),
+    output_format = "all"
+)
+
+##########
+##########
+## este report recull - el informe sin off en ZI y el 90 % de los datos
+##########
+##########
+# 1) el zi NO tiene offset en ambas partes
+# 2) y esta realizado con el 90% del set de datos 
+# ZI_off_cero_incl
+
+,tarchetypes::tar_render(
+    name = report_ZI_1,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_zi_out_off_cero_crp2
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_zi_out_off_cero_crp2
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_zi_out_off_cero_crp2
+        , model_significative_elasticNet = model_significative_elasticNet_std_off_no_cero_normal_zi_crp2
+        , elastic_net_paper_2 = elastic_net_paper_2_w_std_and_penalty_crp2
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_k_2_crp2
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_k_3_crp2
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-C-analysis_normal_zi_no_off_in_ceropart_crp2"
+        ),
+    output_format = "all"
+)
+
+##########
+##########
+## este report recull - el informe sin off en ZI y el 90 % de los datos y RI
+##########
+##########
+
+# 1) el zi NO tiene offset en ambas partes
+# 2) y esta realizado con el 90% del set de datos 
+# ZI_RI_off_cero_incl
+
+,tarchetypes::tar_render(
+    name = report_ZI_RI,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_RI_1
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_RI_1
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_RI_1
+        , model_significative_elasticNet = model_significative_elasticNet_std_off_no_cero_zi_RI
+        , elastic_net_paper_2 = elastic_net_paper_2_w_std_and_penalty # elastic net no cambia 
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_ela
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_ela_3
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-D-analysis_normal_zi_ri_no_off_in_ceropart"
+        ),
+    output_format = "all"
+)
+
+,tarchetypes::tar_render(
+    name = report_ZI_RI_CRP,
+    path =  here::here(
+        "reports",
+        "Templates",
+        "14-BASE_review_ZI_GENERAL",
+        "index.Rmd"),
+    params = list(
+          volcano_list_paper_22 = volcano_list_paper_RI_1_crp2
+        , model_significative_exWAS_normal_cut = model_significative_exWAS_normal_cut_RI_1_crp2
+        , model_significative_exWAS_bonfe_cut = model_significative_exWAS_bonfe_cut_RI_1_crp2
+        , model_significative_elasticNet = model_significative_elasticNet_std_off_no_cero_zi_RI_crp2
+        , elastic_net_paper_2 = elastic_net_paper_2_w_std_and_penalty_crp2 # elastic net no cambia solo si cambia el set de datos 
+        , kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_k_2_crp2
+        , kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_k_3_crp2
+        , rex = "3"
+    ),
+    output_dir = here::here(
+        "reports",
+        "reports-results",
+        "25-D-analysis_normal_zi_ri_no_off_in_ceropart_crp2"
+        ),
+    output_format = "all"
+)
+
+
+
+
+##########
+##########
+## 
+##########
+##########
+
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+# XXX_TEXT___TITLE
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
+, tar_target(
+  report_cluster_all_cohort,
+  rmarkdown::render(
+      here::here(
+        #   "FC-manhica_child_adversity_data",Y:\MOZAMBIQUE\FC-manhica_child_adversity_data\reports\mapping_variables_with_geodata_v2
+          "reports",
+          "Templates",
+          "13-BASE_cluster_by_review_paper2",
+          "index.Rmd"),
+      params = list(
+
+        kprototypes_cluster_paper2_ela = kprototypes_cluster_paper2_ela
+        ,kprototypes_cluster_paper2_ela_without_90perc = kprototypes_cluster_paper2_ela_without_90perc_k2 
+        ,kprototypes_cluster_paper2_ela_3 = kprototypes_cluster_paper2_ela_3
+        ,kprototypes_cluster_paper2_ela_without_90perc_k3 = kprototypes_cluster_paper2_ela_without_90perc_k3
+
+        , rex = "4"
         ),
       output_format = "all",
       output_dir = here::here(
@@ -3708,7 +5498,6 @@ tar_parquet(
         #   "overview_v3-k2andk3 - A - v2"
           )
   ))
-
 
 
 #-----------------------------------------------------------------------------#

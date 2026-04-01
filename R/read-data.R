@@ -1,9 +1,9 @@
-load_variables_names_to_match <- function(){
-    read_csv2(
-        "/PROJECTES/AIRPOLLUTION/MOZAMBIQUE/ANALYSIS/FC_manhica-child-adversity-data-paper2-v2/mapeado_var_names.csv"
-        #         "Y:/MOZAMBIQUE/ANALYSIS/FC-manhica_child_adversity_data_paper2_v2/mapeado_var_names_v5.csv"
-    )
-}
+# load_variables_names_to_match <- function(){
+#     read_csv2(
+#         "/PROJECTES/AIRPOLLUTION/MOZAMBIQUE/ANALYSIS/FC_manhica-child-adversity-data-paper2-v2/mapeado_var_names.csv"
+#         #         "Y:/MOZAMBIQUE/ANALYSIS/FC-manhica_child_adversity_data_paper2_v2/mapeado_var_names_v5.csv"
+#     )
+# }
 
 # load_variables_names_to_match <- function(){
 #     read_csv2(

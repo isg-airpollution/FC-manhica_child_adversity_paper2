@@ -35,18 +35,18 @@
 #' }
 #'
 #' @export
-put_in_order_names_vect <- function(vector_name, key_col = "pca_names", what_name = "Short label") {
-  data_match <- load_variables_names_to_match()
-#   key_col <- "pca_names"
+# put_in_order_names_vect <- function(vector_name, key_col = "pca_names", what_name = "Short label") {
+#   data_match <- load_variables_names_to_match()
+# #   key_col <- "pca_names"
 
-  match_index <- match(vector_name, data_match[[key_col]])
-  result <- data_match[[what_name]][match_index]
+#   match_index <- match(vector_name, data_match[[key_col]])
+#   result <- data_match[[what_name]][match_index]
 
-  # Replace NAs with "NO_FIND_<original_name>"
-  result[is.na(result)] <- paste0("NO_FIND_", vector_name[is.na(result)])
+#   # Replace NAs with "NO_FIND_<original_name>"
+#   result[is.na(result)] <- paste0("NO_FIND_", vector_name[is.na(result)])
 
-  return(result)
-}
+#   return(result)
+# }
 
 
 #' Create multiple directories
@@ -196,7 +196,7 @@ plot_radar_by_env_and_cluster <- function(
         select(all_of(vars_to_plot))
 
       # Rename columns using short labels
-      cleaned_names <- put_in_order_names_vect(vector_name = names(cluster_data), what_name = "Short label")
+      cleaned_names <- put_in_order_names_vect(vector_name = names(cluster_data), what_name = "Short label", orig_path = here::here())
       names(cluster_data) <- cleaned_names
 
       # Calculate summary statistics
@@ -310,7 +310,7 @@ plot_radar_by_env_and_cluster_v2 <- function(
 
 
     # Renombrar variables
-    clean_names <- put_in_order_names_vect(vector_name = names(summary_by_cluster)[-1], what_name = "Short label")
+    clean_names <- put_in_order_names_vect(vector_name = names(summary_by_cluster)[-1], what_name = "Short label", , orig_path = here::here())
     
 
 
@@ -330,7 +330,7 @@ plot_radar_by_env_and_cluster_v2 <- function(
                     )
                 )
 
-    names(max_vals) <-  put_in_order_names_vect(vector_name = names(max_vals), what_name = "Short label")
+    names(max_vals) <-  put_in_order_names_vect(vector_name = names(max_vals), what_name = "Short label", orig_path = here::here())
 
     # min_vals <- apply(data_mat, 2, min, na.rm = TRUE)
 
@@ -343,7 +343,7 @@ plot_radar_by_env_and_cluster_v2 <- function(
                     )
                 )
 
-    names(min_vals) <-  put_in_order_names_vect(vector_name = names(min_vals), what_name = "Short label")
+    names(min_vals) <-  put_in_order_names_vect(vector_name = names(min_vals), what_name = "Short label", orig_path = here::here())
 
     radar_df <- rbind(Max = max_vals, Min = min_vals, as.data.frame(data_mat))
 
@@ -459,49 +459,49 @@ get_optimal_k_by_nbcluster <- function(set_list, n_order = 1) {
 #'   variable_list = variable_patterns,
 #'   where_to_save = "outputs/cor_plots"
 #' )
-#' }
-descriptive_by_variable_list_corr_part <- function(
-  data,
-  variable_list,
-  where_to_save
-) {
-  # Ensure the output directory exists
-  dir.create(where_to_save, showWarnings = FALSE, recursive = TRUE)
+#' } already on the basic analysis
+# # descriptive_by_variable_list_corr_part <- function(
+# #   data,
+# #   variable_list,
+# #   where_to_save
+# # ) {
+# #   # Ensure the output directory exists
+# #   dir.create(where_to_save, showWarnings = FALSE, recursive = TRUE)
 
-  require(corrplot)
-  require(stringr)
-  require(here)
+# #   require(corrplot)
+# #   require(stringr)
+# #   require(here)
 
-  variable_group_names <- names(variable_list)
-  column_names <- names(data)
-  output_paths <- list()
+# #   variable_group_names <- names(variable_list)
+# #   column_names <- names(data)
+# #   output_paths <- list()
 
-  for (group in variable_group_names) {
-    patterns <- variable_list[[group]]
+# #   for (group in variable_group_names) {
+# #     patterns <- variable_list[[group]]
 
-    # Select variables matching the group patterns
-    selected_vars <- column_names[
-      str_detect(column_names, paste(patterns, collapse = "|"))
-    ]
+# #     # Select variables matching the group patterns
+# #     selected_vars <- column_names[
+# #       str_detect(column_names, paste(patterns, collapse = "|"))
+# #     ]
 
-    data_subset <- data[, selected_vars, drop = FALSE]
+# #     data_subset <- data[, selected_vars, drop = FALSE]
     
-    # Rename columns using short labels
-    cleaned_names <- put_in_order_names_vect(vector_name = names(data_subset),key_col = "correlation", what_name = "Short label")
-    names(data_subset) <- cleaned_names
+# #     # Rename columns using short labels
+# #     cleaned_names <- put_in_order_names_vect(vector_name = names(data_subset),key_col = "correlation", what_name = "Short label", orig_path = here::here())
+# #     names(data_subset) <- cleaned_names
     
-    # Output path
-    file_path <- here::here(where_to_save, paste0(group, ".png"))
-    output_paths[[group]] <- file_path
+# #     # Output path
+# #     file_path <- here::here(where_to_save, paste0(group, ".png"))
+# #     output_paths[[group]] <- file_path
 
-    # Save correlation plot
-    png(file_path, width = 2000, height = 2000, res = 150, units = "px")
-    corrplot(cor(data_subset, use = "pairwise.complete.obs"), order = "hclust")
-    dev.off()
-  }
+# #     # Save correlation plot
+# #     png(file_path, width = 2000, height = 2000, res = 150, units = "px")
+# #     corrplot(cor(data_subset, use = "pairwise.complete.obs"), order = "hclust")
+# #     dev.off()
+# #   }
 
-  return(output_paths)
-}
+# #   return(output_paths)
+# # }
 
 #' Generate optimal number of clusters (k) using NbClust and Gower distance
 #'
@@ -1162,7 +1162,8 @@ kpprototype_clustering_plot <- function(
   zona,
   districts,
   prefix = NULL,
-  list_entorno = NULL
+  list_entorno = NULL,
+  use_zi_v2 = FALSE
 ) {
 
      # ########################################################################
@@ -1201,7 +1202,9 @@ kpprototype_clustering_plot <- function(
     #                 HE_variables = tar_read(HE_variables),
     #                 FI_variables = tar_read(FI_variables))
 
- set.seed(3333)  
+#  set.seed(3333) 
+ set.seed(4444)  # version exacta
+#  set.seed(1111)  
 
   # -------------------------------------------------------------------------
   # Setup & dependencies
@@ -1370,9 +1373,9 @@ if (k >= 6) {
   # Attach cluster to original data and to numeric/dummy matrix
 #   vector_clust <-  as.numeric(best_model$cluster)
 #   vector_clust <- 4 - as.numeric(best_model$cluster)
-if(optimal_k == 3){
+if(optimal_k == 333){
     vector_clust <- 4 - as.numeric(best_model$cluster)
-} else if(optimal_k == 2) {
+} else if(optimal_k == 222) {
   vector_clust <- abs(as.numeric(best_model$cluster) - 3)
 } else {
     vector_clust <- as.numeric(best_model$cluster)
@@ -1546,20 +1549,44 @@ if(optimal_k == 3){
   # -------------------------------------------------------------------------
   # Step 8: Downstream modeling with cluster as predictor
   # -------------------------------------------------------------------------
-  plot_cluster <- mod_complete_sig_variables(
-    data = data_fin,
-    covariables = c(
-      "offset(log(fu_months))", "as.factor(gender)", "healthdist_final_std",
-      "as.factor(healthdist_name_facility)", "as.factor(year_birth)",
-      "mother_age_at_birth_of_child_std"
-    ),
-    significative_variables = c("Cluster"),
-    set_model = "zero inflated",
-    outcome = "h_visits",
-    name_facility_in_order = TRUE,
-    STD_variable = TRUE,
-    add_decriptive = TRUE
-  )
+  if(use_zi_v2 == FALSE){
+    plot_cluster <- mod_complete_sig_variables(
+        data = data_fin,
+        covariables = c(
+          "offset(log(fu_months))", 
+          "as.factor(gender)", 
+          "healthdist_final_std",
+          "as.factor(healthdist_name_facility)", 
+          "as.factor(year_birth)",
+          "mother_age_at_birth_of_child_std"
+        ),
+        significative_variables = c("Cluster"),
+        set_model = "zero inflated",
+        outcome = "h_visits",
+        name_facility_in_order = TRUE,
+        STD_variable = TRUE,
+        add_decriptive = TRUE
+    )
+  } else {
+    plot_cluster <-  mod_complete_sig_variables_2(
+        data = data_fin,
+        covariables = c(
+          "offset(log(fu_months))", 
+          "as.factor(gender)", 
+          "healthdist_final_std",
+          "as.factor(healthdist_name_facility)", 
+          "as.factor(year_birth)",
+          "mother_age_at_birth_of_child_std"
+        ),
+        significative_variables = c("Cluster"),
+        set_model = "ri-zero inflated",
+        outcome = "h_visits",
+        name_facility_in_order = TRUE,
+        STD_variable = TRUE,
+        add_decriptive = TRUE,
+        ri_zi = TRUE
+    )
+  }
 
   # -------------------------------------------------------------------------
   # Step 9: Spider/radar plots by domain
@@ -2118,7 +2145,7 @@ volcano_from_scratch <- function(
     ){
 
 
-  variable_name_to_plot <- load_variables_names_to_match()
+  variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
 
   coef_table <- list_coef$coef_table
 
@@ -2475,7 +2502,7 @@ volcano_from_scratch_RI_to_join <- function(
     ){
 
 
-    variable_name_to_plot <- load_variables_names_to_match()
+    variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
 
   coef_table <- list_coef$coef_table
 
@@ -2836,7 +2863,7 @@ volcano_from_scratch2 <- function(
     ){
 
 
-    variable_name_to_plot <- load_variables_names_to_match()
+    variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
 
   coef_table <- list_coef$coef_table
 
@@ -3307,7 +3334,7 @@ elastic_net_generator <- function(
 
     
 
-    variable_name_to_plot <- load_variables_names_to_match()
+    variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
 
 
       ##########
@@ -3820,7 +3847,7 @@ elastic_net_generator_w_penalty <- function(
 
     
 
-    variable_name_to_plot <- load_variables_names_to_match()
+    variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
 
 
       ##########
@@ -3898,6 +3925,357 @@ elastic_net_generator_w_penalty <- function(
 
 
     }
+
+
+
+# Ejemplo de uso:
+elastic_net_generator_w_penalty_v2 <- function(
+    data,
+    all_environment_variables,
+    covariables,
+    output_variable,
+    where_to_save,
+    offset_var = "fu_months",
+    penalty_vector = NULL,
+    kfold_n = 10, # si metemeos que kflod = nrow(x) entonces haremos una LOOCV
+    STD_variable = TRUE
+    ){
+
+
+    #-----------------------------------------------------------------------------#
+    #-----------------------------------------------------------------------------#
+    #    debug part
+    #-----------------------------------------------------------------------------#
+    #-----------------------------------------------------------------------------#
+
+    #   data = tar_read(data_end_90_perce_distance_quantile_paper2)
+    #   all_environment_variables = tar_read(all_environment_variables)
+    #   covariables = c(
+    #       "offset(log(fu_months))", 
+    #       "as.factor(gender)",
+    #       "healthdist_final_std",
+    #       "as.factor(healthdist_name_facility)",
+    #       "as.factor(year_birth)",
+    #       "mother_age_at_birth_of_child_std"
+    #   )
+    #   output_variable = "h_visits"
+    #   where_to_save = here::here(
+    #     "outputs",
+    #     "02_REPORT1")
+    
+    # offset_var = "fu_months"
+    # penalty_vector = TRUE # NULL if want all the variables are equally penalized
+    # kfold_n = 10 # si metemeos que kflod = nrow(x) entonces haremos una LOOCV - creo que kfold = 10 es valido
+
+
+    #-----------------------------------------------------------------------------#
+    #-----------------------------------------------------------------------------#
+    #    end debug part
+    #-----------------------------------------------------------------------------#
+    #-----------------------------------------------------------------------------#
+
+      dir.create(where_to_save, showWarnings = FALSE, recursive = TRUE)
+
+      require(glmnet)
+
+
+    variables_to_mod_or_end = all_environment_variables
+
+  if(any(variables_to_mod_or_end %in% c("mca", "HEMCA", "FIMCA"))){
+    variables_to_mod_or_end_2 <- names(data)[stringr::str_detect(names(data), paste0("^", variables_to_mod_or_end))]
+  } else {
+    variables_to_mod_or_end_2 <- variables_to_mod_or_end
+  }
+
+# table(variables_to_mod_or_end_2 %in% names(data))
+
+# all_environment_variables
+  if(STD_variable == TRUE){
+    # scale if the variabel is numeric--- if not .. pass to fator 
+    # fml_vec <- paste0(fml_base, " + scale(", variables_to_mod_or_end_2, ")")
+    # Use lapply to transform column names based on class
+    transformed_names <- unlist(lapply(variables_to_mod_or_end_2, function(col_name) {
+        col_class <- class(data[[col_name]])
+        if (col_class == "numeric" | col_class == "integer") {
+          return(paste0("scale(", col_name, ")"))
+        } else if (col_class == "character") {
+          return(paste0("as.factor(", col_name, ")"))
+        } else {
+          return(col_name) # Keep unchanged for other classes
+        }
+      }))
+
+
+
+  formula_to_x <- as.formula(
+        paste0(
+          output_variable,
+          "~",
+          paste(covariables, collapse = " + "),
+          "+",
+          paste(transformed_names, collapse = "+")
+        )
+      )
+  
+  }else{
+    transformed_names <- c()
+    formula_to_x <- as.formula(
+        paste0(
+          output_variable,
+          "~",
+          paste(covariables, collapse = " + "),
+          "+",
+          paste(all_environment_variables, collapse = "+")
+        )
+      )
+
+  }
+    
+
+      
+      x <- model.matrix(formula_to_x, data = data)[, -1]
+        #   y <- data$h_visits # Variable dependiente
+      y_var <- data$h_visits 
+
+      offset_var <-  log(data$fu_months)  # Equivalent to h_visits / fu_months
+
+        # penalty vector 
+        # Penalización: no penalizar var1 y penalizar poco var2
+
+        penalty_vector <- rep(1, ncol(x))
+        names(penalty_vector) <- colnames(x)
+
+      if(!is.null(penalty_vector)){
+
+        # Variables que NO penalizás:
+        no_penalizar <- get_no_penalizar_vars(covariables, x)
+
+        penalty_vector[no_penalizar] <- 0
+
+      } 
+
+        
+        
+
+      # Ajustar modelo Elastic Net
+
+        result_best_cv_parameters <- select_best_alpha_elasticnet(
+        x = x,
+        y = y_var,
+        offset_var = offset_var,
+        # penalty.factor = penalty_vector  # o NULL si no usás
+        penalty.factor = penalty_vector,  # o NULL si no usás
+        nfolds = kfold_n
+        )
+
+        # best_alpha = best_alpha,
+        # lambda_min = best_cv$lambda.min,
+        # lambda_1se = best_cv$lambda.1se,
+        # cv_fit = best_cv,
+        # final_model = final_model,
+        # plot_alpha_error = plot_alpha_error,
+        # plot_lambda_path = coef_plot_obj
+
+        # lambda_selected = ( result_best_cv_parameters$lambda_min + result_best_cv_parameters$lambda_1se ) / 2
+        # lambda_selected = result_best_cv_parameters$lambda_min
+        # lambda_selected = result_best_cv_parameters$lambda_1se
+
+        lambda_min <- result_best_cv_parameters$lambda_min
+        lambda_1se <- result_best_cv_parameters$lambda_1se
+
+        # lambda_selected <- mean(c(lambda_min, lambda_1se))
+        # lambda_selected <- mean(c(lambda_min, lambda_1se))
+        # lambda_selected <-exp(-2)
+
+        lambda_selected <-lambda_1se
+
+        # log(median(c(lambda_min, lambda_1se)))
+
+        # mean(c(lambda_min, lambda_1se))
+
+        # exp(-3)
+
+        # log(lambda_min)
+        # log(lambda_min)
+
+
+        # alpha_selected = 0.25
+        alpha_selected = result_best_cv_parameters$best_alpha
+
+      # Ajustar modelo Elastic Net
+
+      set.seed(4444) # Reproducibilidad
+
+      cv_fit <- cv.glmnet(
+        x, y_var,
+        offset = offset_var,
+         penalty.factor = penalty_vector,
+        alpha = alpha_selected,            # Combina Lasso y Ridge
+        family = "poisson",     # Distribución para datos de conteo
+        type.measure = "deviance", # Usar devianza como métrica de evaluación
+        nfolds = kfold_n            # 10-fold Cross-Validation
+      )
+
+      plot_kfold <- plot(cv_fit)
+
+      coef_plot_path <- here::here(where_to_save, "Elastic_net_lambda_path.png")
+      
+
+      plot_n_vars_lambda <- plot_coef_path(cv_fit, save_path = coef_plot_path)
+
+
+      # Ajustar modelo final con el mejor lambda
+      elastic_net_model <- glmnet(
+        x, y_var,
+        offset = offset_var,
+         penalty.factor = penalty_vector,
+        alpha = alpha_selected,
+        lambda = lambda_selected,
+        family = "poisson"
+      )
+
+      # Extract coefficients from the model
+      coef_values <- as.matrix(coef(elastic_net_model))
+
+      ##########
+      ##########
+      ## boots to get IC coef
+      ##########
+      ##########
+
+      require(glmnet)
+      require(boot)
+
+      set.seed(4444)
+
+      # Function to fit elastic net on bootstrap sample
+      boot_fun <- function(indices, x, y, offset_var, penalty_vector, lambda_selected, alpha_selected) {
+        x_boot <- x[indices, , drop = FALSE]  # Resample X
+        y_boot <- y[indices]                  # Resample Y
+        offset_boot <- offset_var[indices]
+        
+        # Fit elastic net model
+        model <- glmnet( x_boot, 
+                         y_boot, 
+                         alpha = alpha_selected, 
+                         lambda = lambda_selected, 
+                         family = "poisson", 
+                         offset = offset_boot, 
+                         penalty.factor = penalty_vector)
+  
+        
+        # Convert sparse coefficients to dense vector
+        as.vector(coef(model))
+      }
+
+      # Number of bootstrap samples
+      R <- 1000
+
+      # Run bootstrapping
+      boot_coefs <- replicate(R, 
+                              boot_fun(sample(1:nrow(x), replace = TRUE), 
+                                       x = x , 
+                                       y = y_var, 
+                                       offset_var = offset_var, 
+                                       penalty_vector = penalty_vector, 
+                                       lambda_selected = lambda_selected, 
+                                       alpha_selected = alpha_selected))
+
+      # Compute confidence intervals (95% percentile interval)
+      ci_lower <- apply(boot_coefs, 1, quantile, probs = 0.025, na.rm = TRUE)
+      ci_upper <- apply(boot_coefs, 1, quantile, probs = 0.975, na.rm = TRUE)
+
+
+      # Combine results into a data frame
+      # coef_ci <- data.frame(
+      #   Estimate = coef_values,
+      #   CI_Lower = ci_lower,
+      #   CI_Upper = ci_upper
+      # )
+
+      # print(coef_ci)
+
+    
+
+    variable_name_to_plot <-  load_variables_names_to_match_from(path = here::here())
+
+
+      ##########
+      ##########
+      ## end
+      ##########
+      ##########
+
+      coef_df <- data.frame(
+        Variable = rownames(coef_values),
+        Coefficient = coef_values[, 1],
+        CI_Lower = ci_lower,
+        CI_Upper = ci_upper
+      )  %>% left_join(
+        variable_name_to_plot, 
+        by = join_by("Variable" == "elastic_names")
+      )
+
+      
+
+      # Add a column to indicate whether the coefficient is zero or not
+      coef_df$Selected <- coef_df$Coefficient != 0
+
+      sig_variables <- coef_df %>% filter(Selected == TRUE) %>% pull(., "Variable")
+      non_sig_variables <- coef_df %>% filter(Selected == FALSE) %>% pull(., "Variable")
+
+      # Reorder the Variable factor based on the Coefficient values
+    #   coef_df$Variable <- reorder(coef_df$Variable, coef_df$Coefficient)
+      coef_df$`Long Label` <- reorder(coef_df$`Long Label`, coef_df$Coefficient)
+
+
+      significative_variables <- stringr::str_extract(sig_variables, paste(all_environment_variables, collapse = "|")) %>% na.omit(.) %>% as.vector(.) %>% unique()
+      non_significative <- stringr::str_extract(non_sig_variables, paste(all_environment_variables, collapse = "|")) %>% na.omit(.) %>% as.vector(.) %>% unique()
+
+      # Plot the coefficients
+      plot_to_show_elastic <- ggplot(coef_df, aes(x = .data[["Long Label"]], y = Coefficient)) +
+        geom_bar(stat = "identity", fill = "steelblue") +
+        coord_flip() +
+        labs(
+          title = "Variable Coefficients",
+          x = "Variables",
+          y = "Coefficient Value"
+        ) +
+        theme_minimal() +
+        theme(
+          axis.text.y = element_text(
+            color = ifelse(coef_df$Selected[order(coef_df$Coefficient)], "black", "red") # Match label colors to sorted values
+          )
+        )
+
+        # Save the plot to a file in high resolution
+      ggsave(
+        filename = here::here(where_to_save, "Elastic_net_plott.png"),  # Specify file name
+        plot = plot_to_show_elastic,               # Save the last plot
+        dpi = 600,                        # Set resolution (dots per inch)
+        width = 15,                       # Set width of the image (in inches)
+        height = 12,                       # Set height of the image (in inches)
+        units = "in"                      # Units for width and height
+      )
+
+      list(
+        elastic_coef_table = coef_df,
+        elastic_k_fold_plot = plot_kfold,
+        elastic_plot_coef = plot_to_show_elastic,
+        elastic_plot_coef_path = here::here(where_to_save, "Elastic_net_plott.png"),
+        list_significative_variables = significative_variables,
+        list_non_significative_variables = non_significative,
+        result_optimization = result_best_cv_parameters,
+        plot_n_vars_lambda = coef_plot_path,
+        alpha_used = alpha_selected,
+        lambda_used = lambda_selected,
+        kfold_n = kfold_n
+      )
+
+
+
+    }
+
 
 elastic_net_glmmPen <- function(
   data,
@@ -6153,7 +6531,7 @@ getMostCommonHouseFeaturesTimeVarying <- function(res_history_clean,
 detectCause <- function(data, pattern) {
   labdiag <- data %>%
     select(starts_with("labdiag")) %>%
-    mutate(across(everything(), ~replace_na(., "")))
+    mutate(across(everything(), ~tidyr::replace_na(., "")))
 
   is_cause_diag <- apply(
     labdiag,

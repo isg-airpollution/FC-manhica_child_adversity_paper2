@@ -2030,7 +2030,7 @@ if(especial_test == FALSE){
 
 # if(add_decriptive){
 
-#     variables_name_to_m <- load_variables_names_to_match()
+#     variables_name_to_m <- load_variables_names_to_match_from(path = here::here())
 
 #       dt$coef_table <- dt$coef_table %>%
 #     mutate(
@@ -2073,7 +2073,7 @@ if(especial_test == FALSE){
 ##' fits a count model (e.g., Poisson/Negative Binomial/Zero-inflated) using
 ##' `mapGeneralModelsCount()`, and augments the coefficient table with
 ##' per-increment effects via `hr.perincr()`. Optionally joins user-friendly
-##' labels from `load_variables_names_to_match()`.
+##' labels from `load_variables_names_to_match_from(path = here::here())`.
 ##'
 ##' @title Complete modeling pipeline for significant variables (count models)
 ##'
@@ -2094,7 +2094,7 @@ if(especial_test == FALSE){
 ##' @param STD_variable Logical. If `TRUE`, uses `transform_names_by_colum_class()`
 ##'   to transform/standardize variable names for modeling. Default is `FALSE`.
 ##' @param add_decriptive Logical. If `TRUE`, joins friendly variable labels from
-##'   `load_variables_names_to_match()` into the coefficient table. (Parameter name
+##'   `load_variables_names_to_match_from(path = here::here())` into the coefficient table. (Parameter name
 ##'   preserved as provided.) Default is `FALSE`.
 ##'
 ##' @return A list (as returned by `mapGeneralModelsCount()`), with the element
@@ -2114,7 +2114,7 @@ if(especial_test == FALSE){
 ##' **Note:** This function relies on helper functions available in your project:
 ##' `transform_names_by_colum_class()`, `mapGeneralModelsCount()`,
 ##' `get_incr_for_HR_by_colum_class()`, `hr.perincr()`, and
-##' `load_variables_names_to_match()`.
+##' `load_variables_names_to_match_from(path = here::here())`.
 ##'
 ##' @author Fabian Coloma
 ##'
@@ -2237,7 +2237,7 @@ mod_complete_sig_variables <- function(
   # `mutate(increment = 1)` with `mutate(increment = ifelse(is.na(increment), 1, increment))`.
   if (isTRUE(add_decriptive)) {
 
-    variables_name_to_m <- load_variables_names_to_match()
+    variables_name_to_m <- load_variables_names_to_match_from(path = here::here())
 
     dt$coef_table <- dt$coef_table %>%
       dplyr::mutate(
@@ -2374,7 +2374,7 @@ mod_complete_sig_variables_2 <- function(
   # `mutate(increment = 1)` with `mutate(increment = ifelse(is.na(increment), 1, increment))`.
   if (isTRUE(add_decriptive)) {
 
-    variables_name_to_m <- load_variables_names_to_match()
+    variables_name_to_m <- load_variables_names_to_match_from(path = here::here())
 
     dt$coef_table <- dt$coef_table %>%
       dplyr::mutate(
